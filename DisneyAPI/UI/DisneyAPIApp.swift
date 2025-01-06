@@ -11,7 +11,7 @@ import SwiftUI
 struct DisneyAPIApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            tabbarView()
         }
     }
 }
