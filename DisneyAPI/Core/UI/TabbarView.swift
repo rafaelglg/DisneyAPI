@@ -22,7 +22,9 @@ struct TabbarView: View {
                 }
                 
                 Tab("Search", systemImage: "magnifyingglass") {
-                    Text("Search")
+                    NavigationStack {
+                        SearchView(viewModel: HomeViewModel(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
+                    }
                 }
                 
                 Tab("Profile", systemImage: "person") {

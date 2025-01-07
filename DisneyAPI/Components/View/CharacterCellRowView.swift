@@ -13,11 +13,7 @@ struct CharacterCellRowView: View {
     
     var body: some View {
         HStack {
-            if let image, let url = URL(string: image) {
-                customAsyncImage(placeholder: placeholderImage, image: url)
-            } else {
-                placeholderImage
-            }
+            ImageLoaderView(urlString: image ?? "")
             nameText
         }
         .padding()
@@ -33,34 +29,6 @@ struct CharacterCellRowView: View {
                 .font(.headline)
                 .redacted(reason: .placeholder)
         }
-    }
-    
-    private var placeholderImage: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.gray.opacity(0.3))
-            .frame(width: 90, height: 120)
-            .shimmerEffect()
-            .clipShape(.rect(cornerRadius: 15))
-    }
-    
-    func customAsyncImage(placeholder: some View, image: URL) -> some View {
-        Rectangle()
-            .fill(Color.gray.opacity(0.3))
-            .frame(width: 90, height: 120)
-            .overlay(
-                
-                AsyncImage(url: image) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable()
-                            .scaledToFill()
-                    default:
-                        placeholderImage
-                    }
-                }
-            )
-            .clipped()
-            .clipShape(.rect(cornerRadius: 15))
     }
 }
 
