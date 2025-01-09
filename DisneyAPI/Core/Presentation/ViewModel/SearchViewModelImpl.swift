@@ -27,6 +27,7 @@ final class SearchViewModelImpl {
     private(set) var promt: String = "Search your favorite character"
     
     var searchText: String = ""
+    var noSearchResult: Bool = false
     
     init(interactor: Interactor) {
         self.interactor = interactor
@@ -61,6 +62,7 @@ final class SearchViewModelImpl {
             do {
                 let searchedChar = try await interactor.searchCharacter(name: name)
                 searchedCharacters = searchedChar.data
+                noSearchResult = searchedChar.data.isEmpty
                 print(searchedCharacters)
             } catch {
                 print(error.localizedDescription)

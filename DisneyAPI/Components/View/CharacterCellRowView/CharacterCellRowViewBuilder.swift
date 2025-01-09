@@ -13,8 +13,8 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     @ViewBuilder var noSearchView: Content
     @ViewBuilder var previewSearchingView: Content
     var searchText: String
-    var isLoadingContent: Bool
-    @ViewBuilder var showListContent: () -> AnyView
+    // var isLoadingContent: Bool
+    @ViewBuilder var showListContent: AnyView
     
     var body: some View {
         List {
@@ -26,13 +26,8 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
                 if searchText.isEmpty {
                     previewSearchingView
                 } else {
-                    // Show placeholder while is loading
-                    if isLoadingContent {
-                        placeholderListCell
-                    } else {
-                        // Show list
-                        showListContent()
-                    }
+                    // Show list
+                    showListContent
                 }
             }
         }
@@ -49,7 +44,20 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     }
 }
 
-#Preview {
+#Preview("Production") {
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterRepository: CharacterServiceImpl()
+        )
+    )
+    NavigationStack {
+        SearchView(viewModel: viewModel)
+            .searchable(text: .constant(""), prompt: Text("search here..."))
+    }
+}
+
+#Preview("Mock") {
     
     @Previewable @State var viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
