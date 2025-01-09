@@ -73,14 +73,3 @@ struct SearchView: View {
         SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
     }
 }
-
-#Preview("Searching Text") {
-    
-    let viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
-    viewModel.searchText = "Mickey"
-    viewModel.searchCharacters(name: "Mickey")
-    
-    return NavigationStack {
-        SearchView(viewModel: viewModel)
-    }
-}

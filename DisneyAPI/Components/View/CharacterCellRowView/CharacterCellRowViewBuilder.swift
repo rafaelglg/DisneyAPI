@@ -49,10 +49,10 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     }
 }
 
+// Cannot search here, just show the views of previewSearch and noSearch
 #Preview {
     
     @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
-    @Previewable @State var searchText: String = "o"
     
     NavigationStack {
         CharacterCellRowViewBuilder(noSearchView: {
@@ -77,5 +77,5 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
         }
         )
     }
-    .searchable(text: $searchText, prompt: Text("search here..."))
+    .searchable(text: .constant(""), prompt: Text("search here..."))
 }
