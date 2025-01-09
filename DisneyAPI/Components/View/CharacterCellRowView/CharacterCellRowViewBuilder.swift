@@ -49,33 +49,15 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     }
 }
 
-// Cannot search here, just show the views of previewSearch and noSearch
 #Preview {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
-    
-    NavigationStack {
-        CharacterCellRowViewBuilder(noSearchView: {
-            Text("nothing here search")
-                .removeListRowFormatting()
-        }, previewSearchingView: {
-            Text("hola")
-                .font(.headline)
-                .bold()
-                .removeListRowFormatting()
-        }, searchText: viewModel.searchText, isLoadingContent: viewModel.isLoading, showListContent: {
-            
-            ForEach(viewModel.searchedCharacters) { character in
-                NavigationLink(value: character) {
-                    CharacterCellRowView(
-                        image: character.imageUrl,
-                        name: character.name
-                    )
-                }
-            }
-            .toAnyView()
-        }
+    @Previewable @State var viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterRepository: CharacterServiceMock(characters: .mock)
         )
+    )
+    NavigationStack {
+        SearchView(viewModel: viewModel)
+            .searchable(text: .constant(""), prompt: Text("search here..."))
     }
-    .searchable(text: .constant(""), prompt: Text("search here..."))
 }
