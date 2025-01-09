@@ -9,19 +9,25 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @State var viewModel: HomeViewModel
+    @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        List {
-            if viewModel.isLoading {
-                placeholderCell
-            } else {
-                ForEach(viewModel.allCharacters) { character in
-                    NavigationLink(value: character) {
-                        CharacterCellRowView(
-                            image: character.imageUrl,
-                            name: character.name
-                        )
+        VStack {
+            
+            HeroCellView()
+            
+            List {
+                if viewModel.isLoading {
+                    placeholderCell
+                    
+                } else {
+                    ForEach(viewModel.allCharacters) { character in
+                        NavigationLink(value: character) {
+                            CharacterCellRowView(
+                                image: character.imageUrl,
+                                name: character.name
+                            )
+                        }
                     }
                 }
             }
@@ -48,7 +54,7 @@ struct HomeView: View {
 #Preview("With mocks") {
     NavigationStack {
         HomeView(
-            viewModel: HomeViewModel(
+            viewModel: SearchViewModelImpl(
                 interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
     }
 }
@@ -56,15 +62,15 @@ struct HomeView: View {
 #Preview("Empty cell") {
     NavigationStack {
         HomeView(
-            viewModel: HomeViewModel(
+            viewModel: SearchViewModelImpl(
                 interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .emptyMock))))
     }
 }
 
-#Preview("Empty cell") {
+#Preview("Cell with delay") {
     NavigationStack {
         HomeView(
-            viewModel: HomeViewModel(
+            viewModel: SearchViewModelImpl(
                 interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 3.0))))
     }
 }

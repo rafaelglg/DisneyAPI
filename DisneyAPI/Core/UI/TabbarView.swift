@@ -12,24 +12,26 @@ struct TabbarView: View {
     @State var characterServiceImpl: CharacterService = CharacterServiceImpl()
     
     var body: some View {
-        NavigationStack {
+        
             TabView {
                 
                 Tab("Home", systemImage: "house") {
                     NavigationStack {
-                        HomeView(viewModel: HomeViewModel(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
+                        HomeView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
                     }
                 }
                 
                 Tab("Search", systemImage: "magnifyingglass") {
                     NavigationStack {
-                        SearchView(viewModel: HomeViewModel(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
+                        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
                     }
                 }
                 
                 Tab("Profile", systemImage: "person") {
-                    Text("Profile")
-                }
+                    NavigationStack {
+                        Text("Profile")
+                    }
+                
             }
         }
     }

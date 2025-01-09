@@ -15,4 +15,8 @@ struct CoreInteractor {
     func getAllCharacters() async throws -> CharacterModel {
         try await characterRepository.getAllCharacters()
     }
+    
+    func searchCharacter(name: String) async throws -> CharacterModel {
+        try await characterRepository.searchCharacter(name: name)
+    }
 }

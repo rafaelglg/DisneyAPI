@@ -9,21 +9,78 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @State var viewModel: HomeViewModel
-    @State private var text: String = ""
-    @State private var promt: LocalizedStringKey = "Search your favorite character"
+    @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        List {
-            Text("hola")
-                .removeListRowFormatting()
+        Group {
+            CharacterCellRowViewBuilder(
+                noSearchView: {
+                    noSearchingView
+                        .toAnyView()
+                },
+                previewSearchingView: {
+                    searchingView
+                        .toAnyView()
+                },
+                searchText: viewModel.searchText,
+                isLoadingContent: viewModel.isLoading,
+                showListContent: {
+                    showListView
+                        .toAnyView()
+                })
         }
-        .searchable(text: $text, prompt: promt)
+        .searchable(text: $viewModel.searchText, prompt: viewModel.promt)
+        .navigationDestination(for: CharacterDataResponse.self) { character in
+            Text(character.name ?? "")
+        }
+        .onChange(of: viewModel.searchText) { _, newValue in
+            viewModel.searchCharacters(name: newValue)
+        }
+    }
+    
+    var noSearchingView: some View {
+        Text("nothing here search")
+            .removeListRowFormatting()
+    }
+
+    var searchingView: some View {
+        Text("hola")
+            .font(.headline)
+            .bold()
+            .removeListRowFormatting()
+    }
+    
+    var showListView: some View {
+        ForEach(viewModel.searchedCharacters) { character in
+            NavigationLink(value: character) {
+                CharacterCellRowView(
+                    image: character.imageUrl,
+                    name: character.name
+                )
+            }
+        }
     }
 }
 
-#Preview {
+#Preview("Production") {
     NavigationStack {
-        SearchView(viewModel: HomeViewModel(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
+        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl())))
+    }
+}
+
+#Preview("Mock") {
+    NavigationStack {
+        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
+    }
+}
+
+#Preview("Searching Text") {
+    
+    let viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    viewModel.searchText = "Mickey"
+    viewModel.searchCharacters(name: "Mickey")
+    
+    return NavigationStack {
+        SearchView(viewModel: viewModel)
     }
 }

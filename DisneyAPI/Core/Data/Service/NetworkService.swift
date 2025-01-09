@@ -8,19 +8,19 @@
 import Foundation
 
 protocol NetworkService: Sendable {
-    func fetchCharacters() async throws -> CharacterModel
+    func fetchCharacters<T>(urlString: String) async throws -> T where T: Codable
 }
 
 struct NetworkServiceImpl: NetworkService {
 
-    func fetchCharacters() async throws -> CharacterModel {
+    func fetchCharacters<T>(urlString: String) async throws -> T where T: Codable {
 
-        guard let url = URL(string: Utilities.getURLPath(endingPath: .allCharacters)) else {
+        guard let url = URL(string: urlString) else {
             throw NetworkServiceError.badURL
         }
         
         let (data, _) = try await URLSession.shared.data(from: url)
-        let decodedData = try JSONDecoder().decode(CharacterModel.self, from: data)
+        let decodedData = try JSONDecoder().decode(T.self, from: data)
         return decodedData
     }
 }

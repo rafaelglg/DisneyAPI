@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CharacterModel: Decodable, Sendable {
+struct CharacterModel: Codable, Sendable {
     let info: InfoResponse
     let data: [CharacterDataResponse]
     
@@ -37,11 +37,11 @@ struct CharacterModel: Decodable, Sendable {
     }
 }
 
-struct InfoResponse: Decodable {
+struct InfoResponse: Codable {
     let count: Int
 }
 
-struct CharacterDataResponse: Decodable, Identifiable, Sendable, Hashable {
+struct CharacterDataResponse: Codable, Identifiable, Sendable, Hashable {
     let id: Int
     let films: [String]?
     let shortFilms: [String]?
@@ -174,6 +174,40 @@ struct CharacterDataResponse: Decodable, Identifiable, Sendable, Hashable {
             ),
             CharacterDataResponse(
                 id: 5,
+                films: ["film1", "film2"],
+                shortFilms: ["ShortFilm1", "ShorFilm2"],
+                tvShows: ["tvShows1", "tvShows2"],
+                videoGames: ["videoGames1", "videoGames2"],
+                parkAttractions: ["parkAttractions1", "parkAttractions2"],
+                allies: ["allies1", "allies"],
+                enemies: ["enemies1", "enemies2"],
+                sourceUrl: "",
+                name: "Queen Arianna",
+                imageUrl:
+                    "https://static.wikia.nocookie.net/disney/images/1/15/Arianna_Tangled.jpg/revision/latest?cb=20160715191802",
+                createdAt: "2021-04-12T01:33:34.458Z",
+                updatedAt: "2021-04-12T01:33:34.458Z",
+                url: ""
+            ),
+            CharacterDataResponse(
+                id: 6,
+                films: ["film1", "film2"],
+                shortFilms: ["ShortFilm1", "ShorFilm2"],
+                tvShows: ["tvShows1", "tvShows2"],
+                videoGames: ["videoGames1", "videoGames2"],
+                parkAttractions: ["parkAttractions1", "parkAttractions2"],
+                allies: ["allies1", "allies"],
+                enemies: ["enemies1", "enemies2"],
+                sourceUrl: "",
+                name: "Queen Arianna",
+                imageUrl:
+                    "https://static.wikia.nocookie.net/disney/images/1/15/Arianna_Tangled.jpg/revision/latest?cb=20160715191802",
+                createdAt: "2021-04-12T01:33:34.458Z",
+                updatedAt: "2021-04-12T01:33:34.458Z",
+                url: ""
+            ),
+            CharacterDataResponse(
+                id: 7,
                 films: ["film1", "film2"],
                 shortFilms: ["ShortFilm1", "ShorFilm2"],
                 tvShows: ["tvShows1", "tvShows2"],

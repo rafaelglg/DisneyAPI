@@ -14,9 +14,9 @@ struct CharacterCellRowView: View {
     var body: some View {
         HStack {
             ImageLoaderView(urlString: image ?? "")
+                .frame(width: 90, height: 120)
             nameText
         }
-        .padding()
     }
     
     @ViewBuilder
@@ -34,20 +34,24 @@ struct CharacterCellRowView: View {
 
 #Preview("Image w/ name") {
     
-    let randomPicture: String = "https://picsum.photos/700/700"
+    let randomPicture: String = "https://picsum.photos/250"
     CharacterCellRowView(image: randomPicture, name: "name 2")
+        .frame(width: 200, height: 120)
 }
 
 #Preview("Name w/out image") {
     
     CharacterCellRowView(name: "name 2")
+        .frame(width: 200, height: 150)
 }
 
 #Preview("Image w/out name") {
     let randomPicture: String = "https://picsum.photos/700/700"
     CharacterCellRowView(image: randomPicture)
+        .frame(width: 200, height: 150)
 }
 
 #Preview("W/out name and image") {
     CharacterCellRowView()
+        .frame(width: 200, height: 150)
 }
