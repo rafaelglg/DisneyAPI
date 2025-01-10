@@ -19,15 +19,12 @@ enum EndingPath {
     
     case basePath
     case allCharacters
-    case filterCharacter(name: String)
     case oneCharacter(id: String)
     
     var path: String {
         switch self {
         case .allCharacters:
-            return "character"
-        case .filterCharacter(let name):
-            return "character?name=\(name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
+            return "character?pageSize=7438"
         case .oneCharacter(let id):
             return "character/\(id)"
         case .basePath:

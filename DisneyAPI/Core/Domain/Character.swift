@@ -100,6 +100,10 @@ struct CharacterDataResponse: Codable, Identifiable, Sendable, Hashable {
             CharacterDataResponse(id: 0)
         ]
     }
+    
+    static var mock: CharacterDataResponse {
+        .dataResponseMock[0]
+    }
 
     static var dataResponseMock: [CharacterDataResponse] {
         return [

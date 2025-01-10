@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct DisneyAPIApp: App {
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    
     var body: some Scene {
         WindowGroup {
-            TabbarView()
+            TabbarView(viewModel: viewModel)
         }
     }
 }

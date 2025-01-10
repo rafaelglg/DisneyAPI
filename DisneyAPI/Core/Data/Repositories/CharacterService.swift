@@ -7,7 +7,6 @@
 
 protocol CharacterService: Sendable {
     func getAllCharacters() async throws -> CharacterModel
-    func searchCharacter(name: String) async throws -> CharacterModel
 }
 
 final class CharacterServiceMock: CharacterService {
@@ -24,10 +23,6 @@ final class CharacterServiceMock: CharacterService {
         try? await Task.sleep(for: .seconds(delay))
         return characters
     }
-    
-    func searchCharacter(name: String) async throws -> CharacterModel {
-        return .mock
-    }
 }
 
 final class CharacterServiceImpl: CharacterService {
@@ -39,9 +34,5 @@ final class CharacterServiceImpl: CharacterService {
     
     func getAllCharacters() async throws -> CharacterModel {
         try await networkService.fetchCharacters(urlString: Utilities.getURLPath(endingPath: .allCharacters))
-    }
-    
-    func searchCharacter(name: String) async throws -> CharacterModel {
-        try await networkService.fetchCharacters(urlString: Utilities.getURLPath(endingPath: .filterCharacter(name: name)))
     }
 }

@@ -12,7 +12,7 @@ struct SearchView: View {
     @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        Group {
+        NavigationStack {
             CharacterCellRowViewBuilder(
                 noSearchView: {
                     noSearchingView
@@ -23,14 +23,17 @@ struct SearchView: View {
                     showListView
                         .toAnyView()
                 })
-        }
-        .searchable(text: $viewModel.searchText, isPresented: $viewModel.isActiveSearch, prompt: viewModel.promt)
-        
-        .navigationDestination(for: CharacterDataResponse.self) { character in
-            Text(character.name ?? "")
-        }
-        .onChange(of: viewModel.searchText) { _, newValue in
-            viewModel.searchCharacters(name: newValue)
+            .searchable(text: $viewModel.searchText, isPresented: $viewModel.isActiveSearch, prompt: viewModel.promt)
+            
+            .navigationDestination(for: CharacterDataResponse.self) { character in
+                CharacterDetailView(character: character)
+                    .onAppear {
+                        viewModel.addRecentSearch(name: character.name ?? "")
+                    }
+            }
+            .onChange(of: viewModel.searchText) { _, newValue in
+                viewModel.searchCharacters(name: newValue)
+            }
         }
     }
     
@@ -67,7 +70,6 @@ struct SearchView: View {
         .padding(.bottom, 10)
         .removeListRowFormatting()
         
-        
         ForEach(viewModel.recentSearches, id: \.self) { search in
             Text(search)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -77,6 +79,7 @@ struct SearchView: View {
                 .onTapGesture {
                     viewModel.isActiveSearch.toggle()
                     viewModel.searchText = search
+                    viewModel.searchCharacters(name: search)
                 }
         }
     }
@@ -84,13 +87,6 @@ struct SearchView: View {
     var noRecentSearchesView: some View {
         ContentUnavailableView("No Recent Searches", systemImage: "binoculars.circle.fill", description: Text("Recent searches will be added as you search for characters"))
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2)
-            .removeListRowFormatting()
-    }
-    
-    var searchingView: some View {
-        Text("hola")
-            .font(.headline)
-            .bold()
             .removeListRowFormatting()
     }
     
@@ -121,7 +117,7 @@ struct SearchView: View {
             "No characters found",
             systemImage: "binoculars.circle.fill",
             description: Text("No found for the character ''\(viewModel.searchText)''"))
-        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 1.2, alignment: .center)
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2, alignment: .center)
         .removeListRowFormatting()
     }
     
@@ -138,8 +134,14 @@ struct SearchView: View {
 }
 
 #Preview("Production") {
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    
     NavigationStack {
-        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl())))
+        SearchView(viewModel: viewModel)
+            .task {
+                await viewModel.getAllCharacters()
+            }
     }
 }
 
@@ -150,33 +152,38 @@ struct SearchView: View {
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
+            .task {
+                await viewModel.getAllCharacters()
+            }
     }
 }
 
 #Preview("Mock") {
-    NavigationStack {
-        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
-    }
-}
-
-#Preview("Mock with active search") {
     
     @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
     viewModel.isActiveSearch = true
+    viewModel.searchText = "Queen"
+    viewModel.searchCharacters(name: "queen")
     
-    return NavigationStack {
+   return NavigationStack {
         SearchView(viewModel: viewModel)
+           .task {
+               await viewModel.getAllCharacters()
+           }
     }
 }
 
 #Preview("No found character") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 1.0)))
     viewModel.isActiveSearch = true
     viewModel.searchText = "Mickkk"
     viewModel.noSearchResult = true
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
+            .task {
+                await viewModel.getAllCharacters()
+            }
     }
 }

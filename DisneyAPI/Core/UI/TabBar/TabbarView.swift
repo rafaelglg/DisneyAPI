@@ -9,38 +9,45 @@ import SwiftUI
 
 struct TabbarView: View {
     
-    @State var characterServiceImpl: CharacterService = CharacterServiceImpl()
+    @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        
-            TabView {
-                
-                Tab("Home", systemImage: "house") {
-                    NavigationStack {
-                        HomeView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
-                    }
-                }
-                
-                Tab("Search", systemImage: "magnifyingglass") {
-                    NavigationStack {
-                        SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: characterServiceImpl)))
-                    }
-                }
-                
-                Tab("Profile", systemImage: "person") {
-                    NavigationStack {
-                        Text("Profile")
-                    }
-                
+        TabView {
+            Tab("Home", systemImage: "house") {
+                HomeView(viewModel: viewModel)
             }
+            
+            Tab("Search", systemImage: "magnifyingglass") {
+                SearchView(viewModel: viewModel)
+            }
+            
+            Tab("Profile", systemImage: "person") {
+                NavigationStack {
+                    Text("Profile")
+                }
+            }
+        }
+        .task {
+            await viewModel.getAllCharacters()
         }
     }
 }
 
 #Preview("Real characters") {
-    TabbarView()
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    
+    TabbarView(viewModel: viewModel)
+        .task {
+            await viewModel.getAllCharacters()
+        }
 }
 
 #Preview("Mock characters") {
-    TabbarView(characterServiceImpl: CharacterServiceMock(characters: .mock))
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    
+    TabbarView(viewModel: viewModel)
 }

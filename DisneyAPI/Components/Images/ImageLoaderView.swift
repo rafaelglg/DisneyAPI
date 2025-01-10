@@ -57,17 +57,17 @@ struct ImageLoaderView: View {
     }
 }
 
-#Preview("Correct image") {
+#Preview("With image") {
     ImageLoaderView()
         .frame(width: 250, height: 400)
 }
 
 #Preview("w/out image") {
     ImageLoaderView(urlString: "")
-        .frame(width: 100, height: 200)
+        .frame(width: 250, height: 400)
 }
 
 #Preview("w/out image diffrent color") {
     ImageLoaderView(urlString: "", firstColor: .gray, secondColor: .black.opacity(0.4), thirdColor: .gray)
-        .frame(width: 100, height: 200)
+        .frame(width: 250, height: 400)
 }

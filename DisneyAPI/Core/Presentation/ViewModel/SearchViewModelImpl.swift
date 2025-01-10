@@ -10,7 +10,6 @@ import Foundation
 @MainActor
 protocol Interactor {
     func getAllCharacters() async throws -> CharacterModel
-    func searchCharacter(name: String) async throws -> CharacterModel
 }
 
 extension CoreInteractor: Interactor { }
@@ -54,48 +53,22 @@ final class SearchViewModelImpl {
     }
     
     func searchCharacters(name: String) {
-        // Realiza la búsqueda inmediatamente
-        Task {
-            await performSearch(name: name)
-        }
-        
-        // Aplica debounce solo a la actualización de `recentSearches`
-        debounceTask?.cancel()
-        debounceTask = Task {
-            do {
-                try await Task.sleep(for: .seconds(1))  // 1 segundo de retraso
-                
-                // Asegúrate de que la tarea no haya sido cancelada
-                guard !Task.isCancelled else { return }
-                addRecentSearch(name: name)
-            } catch {
-                if !(error is CancellationError) {
-                    print("Error no relacionado con la cancelación: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-    
-    private func performSearch(name: String) async {
         guard !name.isEmpty else {
             searchedCharacters = []
             return
         }
-        
         isLoading = true
         
-        defer { isLoading = false }
-        
-        do {
-            let searchedChar = try await interactor.searchCharacter(name: name)
-            searchedCharacters = searchedChar.data
-            noSearchResult = searchedChar.data.isEmpty
-        } catch {
-            print(error.localizedDescription)
+        searchedCharacters = allCharacters.filter {
+            let name = $0.name?.lowercased().contains(name.lowercased()) ?? false
+            
+            isLoading = false
+            return name
         }
+        noSearchResult = searchedCharacters.isEmpty
     }
     
-    private func addRecentSearch(name: String) {
+    func addRecentSearch(name: String) {
         guard !name.isEmpty, !recentSearches.contains(name) else { return }
         
         recentSearches.append(name)

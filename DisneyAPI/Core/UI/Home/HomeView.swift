@@ -12,31 +12,30 @@ struct HomeView: View {
     @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        VStack {
-            
-            HeroCellView()
-            
-            List {
-                if viewModel.isLoading {
-                    placeholderCell
-                    
-                } else {
-                    ForEach(viewModel.allCharacters) { character in
-                        NavigationLink(value: character) {
-                            CharacterCellRowView(
-                                image: character.imageUrl,
-                                name: character.name
-                            )
+        NavigationStack {
+            VStack {
+                
+                HeroCellView()
+                
+                List {
+                    if viewModel.isLoading {
+                        placeholderCell
+                        
+                    } else {
+                        ForEach(viewModel.allCharacters) { character in
+                            NavigationLink(value: character) {
+                                CharacterCellRowView(
+                                    image: character.imageUrl,
+                                    name: character.name
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        .task {
-            await viewModel.getAllCharacters()
-        }
-        .navigationDestination(for: CharacterDataResponse.self) { character in
-            Text(character.name ?? "")
+            .navigationDestination(for: CharacterDataResponse.self) { character in
+                Text(character.name ?? "")
+            }
         }
     }
     

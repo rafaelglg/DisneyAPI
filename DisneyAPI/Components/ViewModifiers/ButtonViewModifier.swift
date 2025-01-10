@@ -50,3 +50,29 @@ extension View {
         .buttonStyle(PressableButtonStyle())
     }
 }
+
+#Preview {
+    VStack {
+        Text("Show custom buttons")
+            .padding()
+            .frame(maxWidth: .infinity)
+        
+        Text("plain")
+            .bold()
+            .foregroundStyle(.white)
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
+            .background(.red, in: RoundedRectangle(cornerRadius: 15))
+            .toAnyButton { }
+            .padding()
+        
+        Text("pressable")
+            .bold()
+            .foregroundStyle(.white)
+            .frame(height: 50)
+            .frame(maxWidth: .infinity)
+            .background(.red, in: RoundedRectangle(cornerRadius: 15))
+            .toAnyButton(option: .press) { }
+            .padding()
+    }
+}
