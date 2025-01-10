@@ -28,7 +28,8 @@ struct SearchView: View {
                         .toAnyView()
                 })
         }
-        .searchable(text: $viewModel.searchText, prompt: viewModel.promt)
+        .searchable(text: $viewModel.searchText, isPresented: $viewModel.isActiveSearch, prompt: viewModel.promt)
+        
         .navigationDestination(for: CharacterDataResponse.self) { character in
             Text(character.name ?? "")
         }
@@ -37,8 +38,54 @@ struct SearchView: View {
         }
     }
     
+    @ViewBuilder
     var noSearchingView: some View {
-        Text("nothing here search")
+        if !viewModel.recentSearches.isEmpty {
+            recentSearchesView
+        } else {
+            noRecentSearchesView
+        }
+    }
+    
+    @ViewBuilder
+    var recentSearchesView: some View {
+        HStack {
+            Text("Recently searched")
+                .font(.title2)
+                .bold()
+            
+            Spacer()
+            
+                Text("clear")
+                    .font(.title3)
+                    .foregroundStyle(.link)
+                    .toAnyButton(option: .press) {
+                        withAnimation(.easeOut.speed(0.5)) {
+                            viewModel.onClearRecentSearches()
+                        }
+                    }
+            }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
+        .removeListRowFormatting()
+        
+            ForEach(viewModel.recentSearches, id: \.self) { search in
+                Text(search)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(.link)
+                    .background(Color.black.opacity(0.0001))
+
+                    .onTapGesture {
+                        viewModel.isActiveSearch.toggle()
+                        viewModel.searchText = search
+                        viewModel.searchCharacters(name: search)
+                    }
+            }
+    }
+    
+    var noRecentSearchesView: some View {
+        ContentUnavailableView("No Recent Searches", systemImage: "binoculars.circle.fill", description: Text("Recent searches will be added as you search for characters"))
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height / 2)
             .removeListRowFormatting()
     }
     
@@ -95,6 +142,16 @@ struct SearchView: View {
 #Preview("Production") {
     NavigationStack {
         SearchView(viewModel: SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl())))
+    }
+}
+
+#Preview("Production with recentSearches") {
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    viewModel.recentSearches = ["mickey", "Minnie"]
+    
+    return NavigationStack {
+        SearchView(viewModel: viewModel)
     }
 }
 

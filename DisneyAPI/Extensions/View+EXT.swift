@@ -5,7 +5,7 @@
 //  Created by Rafael Loggiodice on 7/1/25.
 //
 
-import SwiftUICore
+import SwiftUI
 
 extension View {
     func removeListRowFormatting() -> AnyView {

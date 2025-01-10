@@ -20,14 +20,18 @@ extension CoreInteractor: Interactor { }
 final class SearchViewModelImpl {
     
     private let interactor: Interactor
+    
     private(set) var allCharacters: [CharacterDataResponse] = []
     private(set) var searchedCharacters: [CharacterDataResponse] = []
-    
     private(set) var isLoading: Bool = false
     private(set) var promt: String = "Search your favorite character"
     
+    private var debounceTask: Task<Void, Never>?
+    
     var searchText: String = ""
     var noSearchResult: Bool = false
+    var recentSearches: [String] = []
+    var isActiveSearch: Bool = false
     
     init(interactor: Interactor) {
         self.interactor = interactor
@@ -50,23 +54,57 @@ final class SearchViewModelImpl {
     }
     
     func searchCharacters(name: String) {
+        // Realiza la búsqueda inmediatamente
+        Task {
+            await performSearch(name: name)
+        }
         
+        // Aplica debounce solo a la actualización de `recentSearches`
+        debounceTask?.cancel()
+        debounceTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(1))  // 1 segundo de retraso
+                
+                // Asegúrate de que la tarea no haya sido cancelada
+                guard !Task.isCancelled else { return }
+                addRecentSearch(name: name)
+            } catch {
+                if !(error is CancellationError) {
+                    print("Error no relacionado con la cancelación: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func performSearch(name: String) async {
         guard !name.isEmpty else {
-            return searchedCharacters = []
+            searchedCharacters = []
+            return
         }
         
         isLoading = true
         
-        Task {
-            defer { isLoading = false } 
-            do {
-                let searchedChar = try await interactor.searchCharacter(name: name)
-                searchedCharacters = searchedChar.data
-                noSearchResult = searchedChar.data.isEmpty
-                print(searchedCharacters)
-            } catch {
-                print(error.localizedDescription)
-            }
+        defer { isLoading = false }
+        
+        do {
+            let searchedChar = try await interactor.searchCharacter(name: name)
+            searchedCharacters = searchedChar.data
+            noSearchResult = searchedChar.data.isEmpty
+        } catch {
+            print(error.localizedDescription)
         }
+    }
+    
+    private func addRecentSearch(name: String) {
+        guard !name.isEmpty, !recentSearches.contains(name) else { return }
+        
+        recentSearches.append(name)
+        if recentSearches.count > 10 {
+            recentSearches.removeFirst()
+        }
+    }
+    
+    func onClearRecentSearches() {
+        recentSearches = []
     }
 }
