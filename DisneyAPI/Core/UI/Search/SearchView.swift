@@ -18,10 +18,6 @@ struct SearchView: View {
                     noSearchingView
                         .toAnyView()
                 },
-                previewSearchingView: {
-                    searchingView
-                        .toAnyView()
-                },
                 searchText: viewModel.searchText,
                 showListContent: {
                     showListView
@@ -56,31 +52,33 @@ struct SearchView: View {
             
             Spacer()
             
-                Text("clear")
-                    .font(.title3)
-                    .foregroundStyle(.link)
-                    .toAnyButton(option: .press) {
-                        withAnimation(.easeOut.speed(0.5)) {
-                            viewModel.onClearRecentSearches()
-                        }
+            Text("clear")
+                .font(.title3)
+                .foregroundStyle(.link)
+                .toAnyButton(option: .press) {
+                    withAnimation(.easeOut.speed(0.5)) {
+                        viewModel.onClearRecentSearches()
                     }
-            }
+                }
+        }
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
+        .padding(.top, 30)
+        .padding(.bottom, 10)
         .removeListRowFormatting()
         
-            ForEach(viewModel.recentSearches, id: \.self) { search in
-                Text(search)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundStyle(.link)
-                    .background(Color.black.opacity(0.0001))
-
-                    .onTapGesture {
-                        viewModel.isActiveSearch.toggle()
-                        viewModel.searchText = search
-                        viewModel.searchCharacters(name: search)
-                    }
-            }
+        
+        ForEach(viewModel.recentSearches, id: \.self) { search in
+            Text(search)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundStyle(.link)
+                .background(Color.black.opacity(0.0001))
+            
+                .onTapGesture {
+                    viewModel.isActiveSearch.toggle()
+                    viewModel.searchText = search
+                }
+        }
     }
     
     var noRecentSearchesView: some View {
@@ -161,10 +159,21 @@ struct SearchView: View {
     }
 }
 
+#Preview("Mock with active search") {
+    
+    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    viewModel.isActiveSearch = true
+    
+    return NavigationStack {
+        SearchView(viewModel: viewModel)
+    }
+}
+
 #Preview("No found character") {
     
     @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
-    viewModel.searchText = "Click here"
+    viewModel.isActiveSearch = true
+    viewModel.searchText = "Mickkk"
     viewModel.noSearchResult = true
     
     return NavigationStack {

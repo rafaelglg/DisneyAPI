@@ -11,7 +11,7 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     @Environment(\.isSearching) var isSearching
     
     @ViewBuilder var noSearchView: Content
-    @ViewBuilder var previewSearchingView: Content
+    var previewSearchingView: (() -> Content)?
     var searchText: String
     // var isLoadingContent: Bool
     @ViewBuilder var showListContent: AnyView
@@ -24,7 +24,11 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
             } else {
                 // Searching when click in searchbar, searchText empty
                 if searchText.isEmpty {
-                    previewSearchingView
+                    if let previewSearch = previewSearchingView {
+                        previewSearch()
+                    } else {
+                        noSearchView
+                    }
                 } else {
                     // Show list
                     showListContent
