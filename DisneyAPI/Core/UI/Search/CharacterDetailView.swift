@@ -14,7 +14,6 @@ struct CharacterDetailView: View {
     var body: some View {
         ScrollView {
             VStack {
-                
                 ImageLoaderView(urlString: character.imageUrl ?? "")
                     .frame(width: UIScreen.main.bounds.height / 2, height: 600)
                 
@@ -27,9 +26,11 @@ struct CharacterDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.leading, 40)
                         .padding(.top)
-                    Link(destination: URL(string: sourceUrl)!) {
-                        Text(sourceUrl)
-                    }
+                    
+                    PreviewLink(previewURL: sourceUrl)
+                        .frame(width: 120)
+                        .padding(.bottom, 120)
+                    
                 }
                 
             }
