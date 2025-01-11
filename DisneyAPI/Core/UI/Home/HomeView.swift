@@ -19,7 +19,9 @@ struct HomeView: View {
         }
     }
     
+    @ViewBuilder
     var disneyCharacterSection: some View {
+        let allCharacters = viewModel.allCharacters.shuffled().first(10)
         Section {
             if viewModel.isLoading {
                 placeholderCell()
@@ -27,8 +29,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .removeListRowFormatting()
             } else {
-                let firstCharacter = viewModel.allCharacters.shuffled().first(10)
-                CarouselView(items: firstCharacter) { character in
+                CarouselView(items: allCharacters) { character in
                     HeroCellView(title: character.name, subtitle: nil, imageName: character.imageUrl)
                         .toAnyButton(option: .press) {
                             if let url = URL(string: character.sourceUrl ?? "") {
@@ -42,6 +43,7 @@ struct HomeView: View {
             }
         } header: {
             Text("Disney characters")
+                .redacted(reason: allCharacters.isEmpty ? .placeholder : [])
         }
     }
     
