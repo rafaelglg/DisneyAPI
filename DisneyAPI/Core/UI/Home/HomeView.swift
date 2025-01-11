@@ -13,48 +13,76 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
-                
-                HeroCellView()
-                
-                List {
-                    if viewModel.isLoading {
-                        placeholderCell
-                        
-                    } else {
-                        ForEach(viewModel.allCharacters) { character in
-                            NavigationLink(value: character) {
-                                CharacterCellRowView(
-                                    image: character.imageUrl,
-                                    name: character.name
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationDestination(for: CharacterDataResponse.self) { character in
-                Text(character.name ?? "")
+            List {
+                disneyCharacterSection
             }
         }
     }
     
-    private var placeholderCell: some View {
-        ForEach(CharacterDataResponse.dataResponseMock) { _ in
-            CharacterCellRowView(
-                image: nil,
-                name: "Placeholder name for redacted"
-            )
-            .redacted(reason: .placeholder)
+    var disneyCharacterSection: some View {
+        Section {
+            if viewModel.isLoading {
+                placeholderCell()
+                    .frame(width: 350, height: 220)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .removeListRowFormatting()
+            } else {
+                let firstCharacter = viewModel.allCharacters.shuffled().first(10)
+                CarouselView(items: firstCharacter) { character in
+                    HeroCellView(title: character.name, subtitle: nil, imageName: character.imageUrl)
+                        .toAnyButton(option: .press) {
+                            if let url = URL(string: character.sourceUrl ?? "") {
+                                openURL(url)
+                            }
+                        }
+                }
+                .frame(width: 350, height: 220, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .removeListRowFormatting()
+            }
+        } header: {
+            Text("Disney characters")
+        }
+    }
+    
+    private func placeholderCell() -> some View {
+        CarouselView(items: CharacterDataResponse.dataResponseMock) { _ in
+            HeroCellView(title: Array(repeating: "", count: 4).description, subtitle: nil, imageName: "")
+                .redacted(reason: .placeholder)
+        }
+    }
+    
+    private func openURL(_ url: URL) {
+        if UIApplication.shared.canOpenURL(url) {
+            UIApplication.shared.open(url)
         }
     }
 }
 
+#Preview("Production") {
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    
+    NavigationStack {
+        HomeView(viewModel: viewModel)
+            .task {
+                await viewModel.getAllCharacters()
+            }
+    }
+}
+
 #Preview("With mocks") {
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    
     NavigationStack {
         HomeView(
-            viewModel: SearchViewModelImpl(
-                interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock))))
+            viewModel: viewModel)
+        .task {
+            await viewModel.getAllCharacters()
+        }
     }
 }
 
