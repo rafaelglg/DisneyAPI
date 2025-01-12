@@ -24,9 +24,7 @@ final class SearchViewModelImpl {
     private(set) var searchedCharacters: [CharacterDataResponse] = []
     private(set) var isLoading: Bool = false
     private(set) var promt: String = "Search your favorite character"
-    
-    private var debounceTask: Task<Void, Never>?
-    
+        
     var searchText: String = ""
     var noSearchResult: Bool = false
     var recentSearches: [String] = []
