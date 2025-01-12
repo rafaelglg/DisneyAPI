@@ -10,11 +10,17 @@ import SwiftUI
 struct HomeView: View {
     
     @State var viewModel: SearchViewModelImpl
+    @State var presentSignInView: Bool = false
     
     var body: some View {
         NavigationStack {
             List {
                 disneyCharacterSection
+            }
+            .onAppear { presentSignInView = true }
+            .sheet(isPresented: $presentSignInView) {
+                SignInView()
+                    .presentationDetents([.fraction(0.45)])
             }
         }
     }
@@ -67,7 +73,7 @@ struct HomeView: View {
         interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
     
     NavigationStack {
-        HomeView(viewModel: viewModel)
+        HomeView(viewModel: viewModel, presentSignInView: true)
             .task {
                 await viewModel.getAllCharacters()
             }
