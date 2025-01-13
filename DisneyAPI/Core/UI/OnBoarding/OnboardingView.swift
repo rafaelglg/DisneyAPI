@@ -16,6 +16,7 @@ struct OnboardingView: View {
         VStack(spacing: 8) {
             ImageLoaderView(urlString: viewModel.allCharacters.getFirstAndShuffled { $0.imageUrl
             } ?? "")
+            .drawingGroup()
             .ignoresSafeArea()
             
             titleSection
@@ -47,7 +48,7 @@ struct OnboardingView: View {
             .toAnyButton {
                 appState.updateViewState(showTabBarView: true)
                 Task {
-                    try? await Task.sleep(for: .seconds(2))
+                    try? await Task.sleep(for: .seconds(1))
                     appState.updateViewState(showSignIn: true)
                 }
             }

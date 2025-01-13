@@ -12,14 +12,9 @@ struct HomeView: View {
     @State var viewModel: SearchViewModelImpl
     
     var body: some View {
-        @Bindable var appState = appState
         NavigationStack {
             List {
                 disneyCharacterSection
-            }
-            .sheet(isPresented: $appState.shouldPresentSignIn) {
-                SignInView()
-                    .presentationDetents([.fraction(0.45)])
             }
         }
     }

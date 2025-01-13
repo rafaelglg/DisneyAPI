@@ -23,30 +23,28 @@ enum ButtonStyleOption {
 extension View {
     
     @ViewBuilder
-    func toAnyButton(option: ButtonStyleOption = .plain, action: @escaping () -> Void) -> some View {
+    func toAnyButton(role: ButtonRole? = nil, option: ButtonStyleOption = .plain, action: @escaping () -> Void) -> some View {
         switch option {
         case .plain:
-            plainButton(action: action)
+            plainButton(role: role, action: action)
         case .press:
-            pressableButton(action: action)
+            pressableButton(role: role, action: action)
         }
     }
     
-    func plainButton(action: @escaping () -> Void) -> some View {
-        Button {
-            action()
-        } label: {
+    func plainButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+        Button(role: role, action: action) {
             self
         }
+        .foregroundColor(role == .destructive ? .red : nil)
         .buttonStyle(.plain)
     }
     
-    func pressableButton(action: @escaping () -> Void) -> some View {
-        Button {
-            action()
-        } label: {
+    func pressableButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+        Button(role: role, action: action) {
             self
         }
+        .foregroundColor(role == .destructive ? .red : nil)
         .buttonStyle(PressableButtonStyle())
     }
 }

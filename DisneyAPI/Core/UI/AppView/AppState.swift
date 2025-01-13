@@ -30,3 +30,10 @@ final class AppStateImpl {
         self.showSignIn = showSignIn
     }
 }
+
+extension UserDefaults {
+    
+    private struct Key {
+        static let key: String = "showTabBar"
+    }
+}
