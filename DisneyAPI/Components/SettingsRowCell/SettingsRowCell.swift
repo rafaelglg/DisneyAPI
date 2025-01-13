@@ -12,10 +12,41 @@ struct SettingsRowCell<Destination: View>: View {
     var initials: String? = ""
     var fullName: String? = ""
     var email: String? = ""
-    @ViewBuilder var destination: Destination
+    var destination: Destination?
+    
+    init(initials: String? = "",
+         fullName: String? = "",
+         email: String? = "",
+         destination: (() -> Destination)? = nil) {
+        self.initials = initials
+        self.fullName = fullName
+        self.email = email
+        self.destination = destination?()
+    }
     
     var body: some View {
-        NavigationLink(destination: destination) {
+        
+        if let destination {
+            NavigationLink(destination: destination) {
+                HStack {
+                    Text(initials ?? "")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .frame(width: 73, height: 73)
+                        .background(Color(.systemGray3))
+                        .clipShape(.circle)
+                    
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(fullName ?? "")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        Text(email ?? "")
+                            .font(.footnote)
+                            .tint(.gray)
+                    }
+                }
+            }
+        } else {
             HStack {
                 Text(initials ?? "")
                     .font(.title)
@@ -57,6 +88,14 @@ struct SettingsRowCell<Destination: View>: View {
     }
 }
 
+#Preview("W/out navigation") {
+    NavigationStack {
+        List {
+            SettingsRowCell(initials: "RL", fullName: "Rafael Loggiodice", email: "mail@gmail.com")
+        }
+    }
+}
+
 #Preview("W/out value") {
     NavigationStack {
         List {
@@ -64,5 +103,15 @@ struct SettingsRowCell<Destination: View>: View {
                 Text("hola")
             }
         }
+    }
+}
+
+extension SettingsRowCell where Destination == EmptyView {
+    init(initials: String? = "",
+         fullName: String? = "",
+         email: String? = "") {
+        self.initials = initials
+        self.fullName = fullName
+        self.email = email
     }
 }
