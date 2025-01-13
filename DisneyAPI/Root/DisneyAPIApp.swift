@@ -12,10 +12,12 @@ struct DisneyAPIApp: App {
     
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    let appState: AppStateImpl = AppStateImpl()
     
     var body: some Scene {
         WindowGroup {
-            TabbarView(viewModel: viewModel)
+            AppView(viewModel: viewModel)
         }
+        .environment(appState)
     }
 }

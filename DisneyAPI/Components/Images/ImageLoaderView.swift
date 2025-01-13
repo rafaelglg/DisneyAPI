@@ -50,7 +50,6 @@ struct ImageLoaderView: View {
                         }
                     }
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 15))
         } else {
             placeholderImage
         }
@@ -59,6 +58,7 @@ struct ImageLoaderView: View {
 
 #Preview("With image") {
     ImageLoaderView()
+        .clipShape(RoundedRectangle(cornerRadius: 15))
         .frame(width: 250, height: 400)
 }
 

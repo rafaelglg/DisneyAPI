@@ -14,6 +14,7 @@ struct CharacterCellRowView: View {
     var body: some View {
         HStack {
             ImageLoaderView(urlString: image ?? "")
+                .clipShape(.rect(cornerRadius: 15))
                 .frame(width: 90, height: 120)
             nameText
         }

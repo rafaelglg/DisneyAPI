@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
-    
+    @Environment(AppStateImpl.self) var appState
     @State var viewModel: SearchViewModelImpl
-    @State var presentSignInView: Bool = false
     
     var body: some View {
+        @Bindable var appState = appState
         NavigationStack {
             List {
                 disneyCharacterSection
             }
-            .onAppear { presentSignInView = true }
-            .sheet(isPresented: $presentSignInView) {
+            .sheet(isPresented: $appState.shouldPresentSignIn) {
                 SignInView()
                     .presentationDetents([.fraction(0.45)])
             }
@@ -73,7 +72,8 @@ struct HomeView: View {
         interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
     
     NavigationStack {
-        HomeView(viewModel: viewModel, presentSignInView: true)
+        HomeView(viewModel: viewModel)
+            .environment(AppStateImpl())
             .task {
                 await viewModel.getAllCharacters()
             }
@@ -88,6 +88,7 @@ struct HomeView: View {
     NavigationStack {
         HomeView(
             viewModel: viewModel)
+        .environment(AppStateImpl())
         .task {
             await viewModel.getAllCharacters()
         }
@@ -99,6 +100,7 @@ struct HomeView: View {
         HomeView(
             viewModel: SearchViewModelImpl(
                 interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .emptyMock))))
+        .environment(AppStateImpl())
     }
 }
 
@@ -107,5 +109,6 @@ struct HomeView: View {
         HomeView(
             viewModel: SearchViewModelImpl(
                 interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 3.0))))
+        .environment(AppStateImpl())
     }
 }

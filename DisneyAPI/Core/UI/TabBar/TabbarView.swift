@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TabbarView: View {
     
+    @Environment(AppStateImpl.self) var appState
     @State var viewModel: SearchViewModelImpl
     
     var body: some View {
@@ -27,9 +28,6 @@ struct TabbarView: View {
                 }
             }
         }
-        .task {
-            await viewModel.getAllCharacters()
-        }
     }
 }
 
@@ -39,6 +37,7 @@ struct TabbarView: View {
         interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
     
     TabbarView(viewModel: viewModel)
+        .environment(AppStateImpl())
         .task {
             await viewModel.getAllCharacters()
         }
@@ -50,4 +49,5 @@ struct TabbarView: View {
         interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
     
     TabbarView(viewModel: viewModel)
+        .environment(AppStateImpl())
 }

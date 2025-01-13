@@ -28,4 +28,13 @@ extension View {
     func toAnyView() -> AnyView {
         AnyView(self)
     }
+    
+    func callToActionButton(backgroundColor: Color = .red) -> some View {
+        self
+            .font(.headline)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 55)
+            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 16))
+    }
 }

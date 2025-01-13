@@ -31,7 +31,7 @@ struct NetworkServiceImpl: NetworkService {
             throw NetworkingError.invalidStatusCode(statusCode: -1)
         }
         
-        guard (300...400).contains(statusCode) else {
+        guard (200...299).contains(statusCode) else {
             throw NetworkingError.invalidStatusCode(statusCode: statusCode)
         }
     }
