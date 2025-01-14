@@ -9,12 +9,12 @@ import SwiftUI
 
 struct OnboardingView: View {
     
-    let viewModel: SearchViewModelImpl
+    @Environment(CharacterManagerImpl.self) var characterManager
     @Environment(AppStateImpl.self) var appState
     
     var body: some View {
         VStack(spacing: 8) {
-            ImageLoaderView(urlString: viewModel.allCharacters.getFirstAndShuffled { $0.imageUrl
+            ImageLoaderView(urlString: characterManager.allCharacters.getFirstAndShuffled { $0.imageUrl
             } ?? "")
             .drawingGroup()
             .ignoresSafeArea()
@@ -71,13 +71,32 @@ struct OnboardingView: View {
     }
 }
 
-#Preview {
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 1.0)))
+#Preview("With image") {
     
     @Previewable @State var appState = AppStateImpl()
-    OnboardingView(viewModel: viewModel)
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
+    OnboardingView()
+        .environment(characterManager)
         .environment(appState)
         .task {
-            await viewModel.getAllCharacters()
+            await characterManager.getAllCharacters()
+        }
+}
+
+#Preview("W/out image") {
+    
+    @Previewable @State var appState = AppStateImpl()
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .emptyMock)
+    )
+    OnboardingView()
+        .environment(characterManager)
+        .environment(appState)
+        .task {
+            await characterManager.getAllCharacters()
         }
 }

@@ -10,17 +10,23 @@ import SwiftUI
 struct TabbarView: View {
     
     @Environment(AppStateImpl.self) var appState
-    @State var viewModel: SearchViewModelImpl
+    @Environment(CharacterManagerImpl.self) var characterManager
     
     var body: some View {
         @Bindable var appState = appState
         TabView {
             Tab("Home", systemImage: "house") {
-                HomeView(viewModel: viewModel)
+                HomeView()
             }
             
             Tab("Search", systemImage: "magnifyingglass") {
-                SearchView(viewModel: viewModel)
+                SearchView(
+                    viewModel: SearchViewModelImpl(
+                        interactor: CoreInteractor(
+                            characterManager: characterManager
+                        )
+                    )
+                )
             }
             
             Tab("Profile", systemImage: "person") {
@@ -36,21 +42,21 @@ struct TabbarView: View {
 
 #Preview("Real characters") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(
-        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    @Previewable @State var manager = CharacterManagerImpl(repository: CharacterServiceImpl())
     
-    TabbarView(viewModel: viewModel)
+    TabbarView()
+        .environment(manager)
         .environment(AppStateImpl())
         .task {
-            await viewModel.getAllCharacters()
+            await manager.getAllCharacters()
         }
 }
 
 #Preview("Mock characters") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(
-        interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    @Previewable @State var manager = CharacterManagerImpl(repository: CharacterServiceImpl())
     
-    TabbarView(viewModel: viewModel)
+    TabbarView()
+        .environment(manager)
         .environment(AppStateImpl())
 }

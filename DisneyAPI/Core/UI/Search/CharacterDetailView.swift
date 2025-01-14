@@ -48,21 +48,6 @@ struct CharacterDetailView: View {
     }
 }
 
-#Preview("Production") {
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
-    
-    ZStack {
-        if viewModel.isLoading {
-            ProgressView()
-        } else {
-            CharacterDetailView(character: viewModel.allCharacters.first ?? .mock)
-        }
-    }
-    .task {
-        await viewModel.getAllCharacters()
-    }
-}
-
 #Preview("Mock") {
     @Previewable @State var character = CharacterDataResponse.mock
     CharacterDetailView(character: character)

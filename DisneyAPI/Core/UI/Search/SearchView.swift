@@ -135,47 +135,79 @@ struct SearchView: View {
 
 #Preview("Production") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
     
-    NavigationStack {
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: characterManager
+        )
+    )
+    
+    return NavigationStack {
         SearchView(viewModel: viewModel)
             .task {
-                await viewModel.getAllCharacters()
+                await characterManager.getAllCharacters()
             }
     }
 }
 
 #Preview("Production with recentSearches") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: characterManager
+        )
+    )
     viewModel.recentSearches = ["mickey", "Minnie"]
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
             .task {
-                await viewModel.getAllCharacters()
+                await characterManager.getAllCharacters()
             }
     }
 }
 
 #Preview("Mock") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .mock)
+    )
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: characterManager
+        )
+    )
     viewModel.isActiveSearch = true
-    viewModel.searchText = "Queen"
     viewModel.searchCharacters(name: "queen")
     
-   return NavigationStack {
+    return NavigationStack {
         SearchView(viewModel: viewModel)
            .task {
-               await viewModel.getAllCharacters()
+               await characterManager.getAllCharacters()
+               viewModel.searchText = "Queen"
            }
     }
 }
 
 #Preview("No found character") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 1.0)))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .mock)
+    )
+    
+    let viewModel = SearchViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: characterManager
+        )
+    )
     viewModel.isActiveSearch = true
     viewModel.searchText = "Mickkk"
     viewModel.noSearchResult = true
@@ -183,7 +215,7 @@ struct SearchView: View {
     return NavigationStack {
         SearchView(viewModel: viewModel)
             .task {
-                await viewModel.getAllCharacters()
+                await characterManager.getAllCharacters()
             }
     }
 }

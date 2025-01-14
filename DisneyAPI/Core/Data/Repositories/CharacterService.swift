@@ -9,7 +9,7 @@ protocol CharacterService: Sendable {
     func getAllCharacters() async throws -> CharacterModel
 }
 
-final class CharacterServiceMock: CharacterService {
+final class CharacterServiceMock: CharacterService, Sendable {
     
     private let characters: CharacterModel
     let delay: Double
@@ -25,7 +25,7 @@ final class CharacterServiceMock: CharacterService {
     }
 }
 
-final class CharacterServiceImpl: CharacterService {
+final class CharacterServiceImpl: CharacterService, Sendable {
     private let networkService: NetworkService
     
     init(networkService: NetworkService = NetworkServiceImpl()) {

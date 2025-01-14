@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct HomeView: View {
+    
     @Environment(AppStateImpl.self) var appState
-    @State var viewModel: SearchViewModelImpl
+    @Environment(CharacterManagerImpl.self) var characterManager
     
     var body: some View {
         NavigationStack {
@@ -21,10 +22,10 @@ struct HomeView: View {
     
     @ViewBuilder
     var disneyCharacterSection: some View {
-        let allCharacters = viewModel.allCharacters.shuffled().first(10)
+        let allCharacters = characterManager.allCharacters.shuffled().first(10)
         Section {
-            if viewModel.isLoading {
-                placeholderCell()
+            if characterManager.isLoading {
+                placeholderCell
                     .frame(width: 350, height: 220)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .removeListRowFormatting()
@@ -47,7 +48,7 @@ struct HomeView: View {
         }
     }
     
-    private func placeholderCell() -> some View {
+    private var placeholderCell: some View {
         CarouselView(items: CharacterDataResponse.dataResponseMock) { _ in
             HeroCellView(title: Array(repeating: "", count: 4).description, subtitle: nil, imageName: "")
                 .redacted(reason: .placeholder)
@@ -63,47 +64,61 @@ struct HomeView: View {
 
 #Preview("Production") {
     
-    let viewModel = SearchViewModelImpl(
-        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
     
     NavigationStack {
-        HomeView(viewModel: viewModel)
-            .environment(AppStateImpl())
+        HomeView()
             .task {
-                await viewModel.getAllCharacters()
+                await characterManager.getAllCharacters()
             }
+            .environment(characterManager)
+            .environment(AppStateImpl())
     }
 }
 
 #Preview("With mocks") {
     
-    let viewModel = SearchViewModelImpl(
-        interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .mock)
+    )
     
     NavigationStack {
-        HomeView(
-            viewModel: viewModel)
+        HomeView()
+        .environment(characterManager)
         .environment(AppStateImpl())
         .task {
-            await viewModel.getAllCharacters()
+            await characterManager.getAllCharacters()
         }
     }
 }
 
 #Preview("Empty cell") {
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .emptyMock)
+    )
+    
     NavigationStack {
-        HomeView(
-            viewModel: SearchViewModelImpl(
-                interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .emptyMock))))
-        .environment(AppStateImpl())
+        HomeView()
+            .environment(characterManager)
+            .environment(AppStateImpl())
     }
 }
 
 #Preview("Cell with delay") {
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .mock, delay: 3.0)
+    )
+    
     NavigationStack {
-        HomeView(
-            viewModel: SearchViewModelImpl(
-                interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock, delay: 3.0))))
+        HomeView()
+            .task {
+                await characterManager.getAllCharacters()
+            }
+        .environment(characterManager)
         .environment(AppStateImpl())
     }
 }

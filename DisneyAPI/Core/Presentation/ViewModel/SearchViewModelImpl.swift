@@ -8,19 +8,18 @@
 import Foundation
 
 @MainActor
-protocol Interactor {
-    func getAllCharacters() async throws -> CharacterModel
+protocol SearchViewModelInteractor {
+    var allCharacters: [CharacterDataResponse] { get }
 }
 
-extension CoreInteractor: Interactor { }
+extension CoreInteractor: SearchViewModelInteractor { }
 
 @MainActor
 @Observable
 final class SearchViewModelImpl {
     
-    private let interactor: Interactor
+    private let interactor: SearchViewModelInteractor
     
-    private(set) var allCharacters: [CharacterDataResponse] = []
     private(set) var searchedCharacters: [CharacterDataResponse] = []
     private(set) var isLoading: Bool = false
     private(set) var promt: String = "Search your favorite character"
@@ -30,24 +29,8 @@ final class SearchViewModelImpl {
     var recentSearches: [String] = []
     var isActiveSearch: Bool = false
     
-    init(interactor: Interactor) {
+    init(interactor: SearchViewModelInteractor) {
         self.interactor = interactor
-    }
-    
-    func getAllCharacters() async {
-        isLoading = true
-        
-        defer {
-            isLoading = false
-        }
-        
-        do {
-            let response = try await interactor.getAllCharacters()
-            allCharacters = response.data
-        } catch {
-            print(error)
-            print(error.localizedDescription)
-        }
     }
     
     func searchCharacters(name: String) {
@@ -56,11 +39,12 @@ final class SearchViewModelImpl {
             return
         }
         isLoading = true
-        
-        searchedCharacters = allCharacters.filter {
-            let name = $0.name?.lowercased().contains(name.lowercased()) ?? false
-            
+        defer {
             isLoading = false
+        }
+        
+        searchedCharacters = interactor.allCharacters.filter {
+            let name = $0.name?.lowercased().contains(name.lowercased()) ?? false
             return name
         }
         noSearchResult = searchedCharacters.isEmpty

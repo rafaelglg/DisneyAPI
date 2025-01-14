@@ -106,6 +106,7 @@ struct SettingsRowCell<Destination: View>: View {
     }
 }
 
+/// Add this extension to have the posibility when the destination is nil to not have it as parameter when initialize
 extension SettingsRowCell where Destination == EmptyView {
     init(initials: String? = "",
          fullName: String? = "",

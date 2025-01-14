@@ -13,7 +13,6 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     @ViewBuilder var noSearchView: Content
     var previewSearchingView: (() -> Content)?
     var searchText: String
-    // var isLoadingContent: Bool
     @ViewBuilder var showListContent: AnyView
     
     var body: some View {
@@ -48,28 +47,79 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     }
 }
 
-#Preview("Production") {
+#Preview("Without Preview Searching View") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(
+    @Previewable @State var searchText: String = ""
+    
+    NavigationStack {
+        CharacterCellRowViewBuilder(noSearchView: {
+            Text("No Search View").toAnyView()
+        }, searchText: searchText, showListContent: {
+            Text("Show List Content").toAnyView()
+        })
+        .searchable(text: $searchText)
+    }
+}
+
+#Preview("With Preview Searching View") {
+    
+    @Previewable @State var searchText: String = ""
+    
+    NavigationStack {
+        CharacterCellRowViewBuilder(noSearchView: {
+            Text("No Search View").toAnyView()
+        }, previewSearchingView: {
+            Text("Preview searching text").toAnyView()
+        }, searchText: searchText, showListContent: {
+            Text("Show List Content").toAnyView()
+        })
+        .searchable(text: $searchText)
+    }
+}
+
+#Preview("Real case") {
+    
+    @Previewable @State var searchText: String = ""
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
+    
+    let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterRepository: CharacterServiceImpl()
+            characterManager: characterManager
         )
     )
+    
     NavigationStack {
         SearchView(viewModel: viewModel)
-            .searchable(text: .constant(""), prompt: Text("search here..."))
+            .task {
+                await characterManager.getAllCharacters()
+            }
+            .searchable(text: $searchText, prompt: Text("search here..."))
     }
 }
 
 #Preview("Mock") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(
+    @Previewable @State var searchText: String = ""
+    
+    let characterManager = CharacterManagerImpl(
+        repository: CharacterServiceMock(characters: .mock)
+    )
+    
+    let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterRepository: CharacterServiceMock(characters: .mock)
+            characterManager: characterManager
         )
     )
-    NavigationStack {
+    viewModel.searchCharacters(name: "queen")
+    
+    return NavigationStack {
         SearchView(viewModel: viewModel)
-            .searchable(text: .constant(""), prompt: Text("search here..."))
+            .task {
+                await characterManager.getAllCharacters()
+            }
+            .searchable(text: $searchText, prompt: Text("search here..."))
     }
 }

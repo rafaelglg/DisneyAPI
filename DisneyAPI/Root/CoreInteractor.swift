@@ -5,14 +5,19 @@
 //  Created by Rafael Loggiodice on 7/1/25.
 //
 
+@MainActor
 struct CoreInteractor {
-    private let characterRepository: CharacterService
+    private let characterManager: CharacterManagerImpl
     
-    init(characterRepository: CharacterService) {
-        self.characterRepository = characterRepository
+    init(characterManager: CharacterManagerImpl) {
+        self.characterManager = characterManager
     }
     
-    func getAllCharacters() async throws -> CharacterModel {
-        try await characterRepository.getAllCharacters()
+    func getAllCharacters() async throws {
+        await characterManager.getAllCharacters()
+    }
+    
+    var allCharacters: [CharacterDataResponse] {
+        characterManager.allCharacters
     }
 }

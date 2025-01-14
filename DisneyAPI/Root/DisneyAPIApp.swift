@@ -10,14 +10,16 @@ import SwiftUI
 @main
 struct DisneyAPIApp: App {
     
-    let viewModel = SearchViewModelImpl(
-        interactor: CoreInteractor(characterRepository: CharacterServiceImpl()))
+    let characterManager: CharacterManagerImpl = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
     let appState: AppStateImpl = AppStateImpl()
     
     var body: some Scene {
         WindowGroup {
-            AppView(viewModel: viewModel)
+            AppView()
         }
         .environment(appState)
+        .environment(characterManager)
     }
 }

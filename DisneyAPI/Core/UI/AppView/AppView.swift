@@ -9,33 +9,52 @@ import SwiftUI
 
 struct AppView: View {
     
-    let viewModel: SearchViewModelImpl
+    @Environment(CharacterManagerImpl.self) var characterManager
     @Environment(AppStateImpl.self) var appState
     
     var body: some View {
         ZStack {
             if appState.showTabBar {
-                TabbarView(viewModel: viewModel)
+                TabbarView()
                     .transition(.move(edge: .trailing))
             } else {
-                OnboardingView(viewModel: viewModel)
+                OnboardingView()
                     .transition(.move(edge: .leading))
             }
         }
         .task {
-            await viewModel.getAllCharacters()
+            await characterManager.getAllCharacters()
         }
         .animation(.smooth, value: appState.showTabBar)
     }
 }
 
-#Preview {
+#Preview("Production") {
     
-    @Previewable @State var viewModel = SearchViewModelImpl(interactor: CoreInteractor(characterRepository: CharacterServiceMock(characters: .mock)))
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
     
-    AppView(viewModel: viewModel)
+    AppView()
+        .environment(manager)
         .environment(AppStateImpl())
         .task {
-            await viewModel.getAllCharacters()
+            await manager.getAllCharacters()
+        }
+}
+
+#Preview("Mock") {
+    
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceMock(
+            characters: .mock, delay: 2.0
+        )
+    )
+    
+    AppView()
+        .environment(manager)
+        .environment(AppStateImpl())
+        .task {
+            await manager.getAllCharacters()
         }
 }
