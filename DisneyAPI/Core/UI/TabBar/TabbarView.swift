@@ -42,7 +42,9 @@ struct TabbarView: View {
 
 #Preview("Real characters") {
     
-    @Previewable @State var manager = CharacterManagerImpl(repository: CharacterServiceImpl())
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
     
     TabbarView()
         .environment(manager)
@@ -54,9 +56,16 @@ struct TabbarView: View {
 
 #Preview("Mock characters") {
     
-    @Previewable @State var manager = CharacterManagerImpl(repository: CharacterServiceImpl())
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceMock(
+            characters: .mock
+        )
+    )
     
     TabbarView()
+        .task {
+            await manager.getAllCharacters()
+        }
         .environment(manager)
         .environment(AppStateImpl())
 }
