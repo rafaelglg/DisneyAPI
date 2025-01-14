@@ -147,9 +147,6 @@ struct SearchView: View {
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
-            .task {
-                await characterManager.getAllCharacters()
-            }
     }
 }
 
@@ -168,9 +165,6 @@ struct SearchView: View {
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
-            .task {
-                await characterManager.getAllCharacters()
-            }
     }
 }
 
@@ -190,10 +184,6 @@ struct SearchView: View {
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
-           .task {
-               await characterManager.getAllCharacters()
-               viewModel.searchText = "Queen"
-           }
     }
 }
 
@@ -214,8 +204,5 @@ struct SearchView: View {
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
-            .task {
-                await characterManager.getAllCharacters()
-            }
     }
 }

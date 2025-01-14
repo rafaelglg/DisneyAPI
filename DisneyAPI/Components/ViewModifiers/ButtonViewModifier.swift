@@ -32,7 +32,7 @@ extension View {
         }
     }
     
-    func plainButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+    private func plainButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
         Button(role: role, action: action) {
             self
         }
@@ -40,7 +40,7 @@ extension View {
         .buttonStyle(.plain)
     }
     
-    func pressableButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+    private func pressableButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
         Button(role: role, action: action) {
             self
         }
@@ -56,21 +56,13 @@ extension View {
             .frame(maxWidth: .infinity)
         
         Text("plain")
-            .bold()
-            .foregroundStyle(.white)
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(.red, in: RoundedRectangle(cornerRadius: 15))
+            .callToActionButton()
+            .padding(.horizontal)
             .toAnyButton { }
-            .padding()
         
         Text("pressable")
-            .bold()
-            .foregroundStyle(.white)
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(.red, in: RoundedRectangle(cornerRadius: 15))
-            .toAnyButton(option: .press) { }
+            .callToActionButton()
             .padding()
+            .toAnyButton(option: .press) { }
     }
 }

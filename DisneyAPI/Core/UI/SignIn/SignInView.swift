@@ -2,102 +2,112 @@
 //  SignInView.swift
 //  DisneyAPI
 //
-//  Created by Rafael Loggiodice on 12/1/25.
+//  Created by Rafael Loggiodice on 14/1/25.
 //
 
 import SwiftUI
 
 struct SignInView: View {
     
-    @Environment(\.dismiss) var dismiss
+    @Environment(CharacterManagerImpl.self) var characterManager
+    @FocusState private var focusState: FieldState?
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 15) {
+        ZStack {
+            ScrollView {
                 
-                titleText
-                appleButton
-                googleButton
-                signInButton
-            }
-            .padding()
-            .toolbar {
-                ToolbarItem(placement: .destructiveAction) {
-                    Image(systemName: "x.circle.fill")
-                        .toAnyButton { dismiss() }
+                VStack(alignment: .leading) {
+                    ImageLoaderView(urlString: characterManager.allCharacters.getFirstAndShuffled {$0.imageUrl} ?? "")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 400)
+                        .clipShape(.rect(cornerRadius: 0))
+                        .padding(.bottom)
+                    
+                    signInText
+                    textfieldEmail
+                    secureFieldPassword
+                    buttonSection
+                    
                 }
+                // Tap background to hide keyboard
+                .background(Color.black.opacity(0.001).onTapGesture {
+                    hideKeyboard()
+                })
             }
         }
     }
     
-    @ViewBuilder
-    var titleText: some View {
-        Text("Thanks for trying DisneyApi")
-            .font(.title2)
-            .bold()
-        
-        Text("Sign in or sign up to access for premium features that we provide")
-            .minimumScaleFactor(0.8)
-            .padding(.bottom)
-    }
-    
-    var appleButton: some View {
-        Text("Continue with Apple")
-            .foregroundStyle(.white)
-            .bold()
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(Color.primary, in: RoundedRectangle(cornerRadius: 15))
-            .padding(.horizontal, 30)
-            .toAnyButton(option: .press) { }
-    }
-    
-    var googleButton: some View {
-        Text("Continue with Google")
-            .foregroundStyle(.primary)
-            .bold()
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(Color.teal, in: RoundedRectangle(cornerRadius: 15))
-            .padding(.horizontal, 30)
-            .toAnyButton(option: .press) { }
-    }
-    
-    var signInButton: some View {
+    private var signInText: some View {
         Text("Sign in")
-            .foregroundStyle(.white)
+            .font(.largeTitle)
             .bold()
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(Color.red, in: RoundedRectangle(cornerRadius: 15))
-            .padding(.horizontal, 30)
-            .toAnyButton(option: .press) { }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
     }
-}
-
-#Preview("Regular view") {
-    SignInView()
-}
-
-#Preview("Sheet view") {
     
-    @Previewable @State var isSheetPresented: Bool = false
-    
-    ZStack {
-        if isSheetPresented {
-            Color.black
-                .opacity(0.4) // Nivel de oscurecimiento
-                .ignoresSafeArea()
-                .transition(.opacity)
+    private var textfieldEmail: some View {
+        TextField(text: .constant("")) {
+            Text("Email")
+                .bold()
         }
-        VStack {
-            Text("Demo view")
+        .padding()
+        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
+        .textContentType(.emailAddress)
+        .focused($focusState, equals: .email)
+        .submitLabel(.continue)
+        .onSubmit {
+            focusState = .password
         }
-    }
-    .onAppear { isSheetPresented.toggle() }
-    .sheet(isPresented: $isSheetPresented) {
-        SignInView()
-            .presentationDetents([.fraction(0.5)])
         
+    }
+    
+    private var secureFieldPassword: some View {
+        SecureField(text: .constant("")) {
+            Text("Password")
+                .bold()
+        }
+        .textContentType(.password)
+        .focused($focusState, equals: .password)
+        .submitLabel(.done)
+        
+        .padding()
+        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+    
+    private var buttonSection: some View {
+        Text("Continue")
+            .callToActionButton()
+            .padding(.horizontal)
+            .toAnyButton { }
+    }
+}
+
+#Preview("Prod") {
+    
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceImpl()
+    )
+    
+    NavigationStack {
+        SignInView()
+            .environment(manager)
+    }
+}
+
+#Preview("Mock") {
+    
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceMock(
+            characters: .mock
+        )
+    )
+    
+    NavigationStack {
+        SignInView()
+            .environment(manager)
     }
 }

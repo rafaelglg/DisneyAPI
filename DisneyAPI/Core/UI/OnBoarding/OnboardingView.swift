@@ -81,9 +81,6 @@ struct OnboardingView: View {
     OnboardingView()
         .environment(characterManager)
         .environment(appState)
-        .task {
-            await characterManager.getAllCharacters()
-        }
 }
 
 #Preview("W/out image") {
@@ -96,7 +93,4 @@ struct OnboardingView: View {
     OnboardingView()
         .environment(characterManager)
         .environment(appState)
-        .task {
-            await characterManager.getAllCharacters()
-        }
 }

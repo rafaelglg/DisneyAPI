@@ -22,9 +22,6 @@ struct AppView: View {
                     .transition(.move(edge: .leading))
             }
         }
-        .task {
-            await characterManager.getAllCharacters()
-        }
         .animation(.smooth, value: appState.showTabBar)
     }
 }
@@ -38,9 +35,6 @@ struct AppView: View {
     AppView()
         .environment(manager)
         .environment(AppStateImpl())
-        .task {
-            await manager.getAllCharacters()
-        }
 }
 
 #Preview("Mock") {
@@ -54,7 +48,4 @@ struct AppView: View {
     AppView()
         .environment(manager)
         .environment(AppStateImpl())
-        .task {
-            await manager.getAllCharacters()
-        }
 }

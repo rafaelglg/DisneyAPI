@@ -17,6 +17,10 @@ final class CharacterManagerImpl {
     
     init(repository: CharacterService) {
         self.repository = repository
+        
+        Task {
+            await getAllCharacters()
+        }
     }
     
     func getAllCharacters() async {

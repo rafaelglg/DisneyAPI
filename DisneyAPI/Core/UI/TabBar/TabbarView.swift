@@ -34,7 +34,7 @@ struct TabbarView: View {
             }
         }
         .sheet(isPresented: $appState.shouldPresentSignIn) {
-            SignInView()
+            SignInProcessView()
                 .presentationDetents([.fraction(0.45)])
         }
     }
@@ -45,13 +45,12 @@ struct TabbarView: View {
     @Previewable @State var manager = CharacterManagerImpl(
         repository: CharacterServiceImpl()
     )
+    @Previewable @State var appState = AppStateImpl()
+    appState.shouldPresentSignIn = true
     
-    TabbarView()
+    return TabbarView()
         .environment(manager)
-        .environment(AppStateImpl())
-        .task {
-            await manager.getAllCharacters()
-        }
+        .environment(appState)
 }
 
 #Preview("Mock characters") {
@@ -63,9 +62,6 @@ struct TabbarView: View {
     )
     
     TabbarView()
-        .task {
-            await manager.getAllCharacters()
-        }
         .environment(manager)
         .environment(AppStateImpl())
 }

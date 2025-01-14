@@ -29,12 +29,16 @@ extension View {
         AnyView(self)
     }
     
-    func callToActionButton(backgroundColor: Color = .red) -> some View {
+    func callToActionButton(backgroundColor: Color? = nil) -> some View {
         self
             .font(.headline)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 55)
-            .background(backgroundColor, in: RoundedRectangle(cornerRadius: 16))
+            .background(backgroundColor ?? .red, in: RoundedRectangle(cornerRadius: 16))
+    }
+    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

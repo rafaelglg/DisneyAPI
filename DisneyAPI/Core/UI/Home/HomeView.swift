@@ -70,9 +70,6 @@ struct HomeView: View {
     
     NavigationStack {
         HomeView()
-            .task {
-                await characterManager.getAllCharacters()
-            }
             .environment(characterManager)
             .environment(AppStateImpl())
     }
@@ -88,9 +85,6 @@ struct HomeView: View {
         HomeView()
         .environment(characterManager)
         .environment(AppStateImpl())
-        .task {
-            await characterManager.getAllCharacters()
-        }
     }
 }
 
@@ -115,9 +109,6 @@ struct HomeView: View {
     
     NavigationStack {
         HomeView()
-            .task {
-                await characterManager.getAllCharacters()
-            }
         .environment(characterManager)
         .environment(AppStateImpl())
     }
