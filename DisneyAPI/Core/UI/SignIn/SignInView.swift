@@ -11,6 +11,7 @@ struct SignInView: View {
     
     @Environment(CharacterManagerImpl.self) var characterManager
     @FocusState private var focusState: FieldState?
+    @State private var showAlert: AnyAppAlert?
     
     var body: some View {
         ZStack {
@@ -39,6 +40,7 @@ struct SignInView: View {
                 .background(Color.black.opacity(0.001).onTapGesture {
                     hideKeyboard()
                 })
+                .showCustomAlert(alert: $showAlert)
             }
         }
     }
@@ -88,7 +90,9 @@ struct SignInView: View {
         Text("Continue")
             .callToActionButton()
             .padding(.horizontal)
-            .toAnyButton { }
+            .toAnyButton {
+                showAlert = AnyAppAlert(error: URLError(.badURL))
+            }
     }
 }
 
