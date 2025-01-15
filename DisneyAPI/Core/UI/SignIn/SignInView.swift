@@ -17,17 +17,23 @@ struct SignInView: View {
             ScrollView {
                 
                 VStack(alignment: .leading) {
-                    ImageLoaderView(urlString: characterManager.allCharacters.getFirstAndShuffled {$0.imageUrl} ?? "")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 400)
-                        .clipShape(.rect(cornerRadius: 0))
-                        .padding(.bottom)
+                    let array = characterManager.allCharacters.first(10)
+                        .map { $0.imageUrl ?? "" }
+                        .shuffled()
+                    
+                    ImageLoaderViewBuilder(
+                        imageUrls: array,
+                        animationDuration: 5.0,
+                        animationType: .blurReplace(.upUp))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 400)
+                    .clipShape(.rect(cornerRadius: 0))
+                    .padding(.bottom)
                     
                     signInText
                     textfieldEmail
                     secureFieldPassword
                     buttonSection
-                    
                 }
                 // Tap background to hide keyboard
                 .background(Color.black.opacity(0.001).onTapGesture {
@@ -92,9 +98,14 @@ struct SignInView: View {
         repository: CharacterServiceImpl()
     )
     
-    NavigationStack {
-        SignInView()
-            .environment(manager)
+    return NavigationStack {
+        
+        if manager.isLoading {
+            SignInView().redacted(reason: .placeholder).environment(manager)
+        } else {
+            SignInView()
+                .environment(manager)
+        }
     }
 }
 
@@ -102,12 +113,19 @@ struct SignInView: View {
     
     @Previewable @State var manager = CharacterManagerImpl(
         repository: CharacterServiceMock(
-            characters: .mock
+            characters: .mock, delay: 0.1
         )
     )
     
-    NavigationStack {
-        SignInView()
-            .environment(manager)
+    return NavigationStack {
+        
+        if manager.isLoading {
+            SignInView()
+                .redacted(reason: .placeholder)
+                .environment(manager)
+        } else {
+            SignInView()
+                .environment(manager)
+        }
     }
 }
