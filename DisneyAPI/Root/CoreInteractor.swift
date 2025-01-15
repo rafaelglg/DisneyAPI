@@ -20,4 +20,6 @@ struct CoreInteractor {
     var allCharacters: [CharacterDataResponse] {
         characterManager.allCharacters
     }
+    
+    func signIn(email: String, password: String) async throws { }
 }

@@ -10,39 +10,50 @@ import SwiftUI
 struct SignInView: View {
     
     @Environment(CharacterManagerImpl.self) var characterManager
+    @State var signInViewModel: SignInViewModelImpl
     @FocusState private var focusState: FieldState?
-    @State private var showAlert: AnyAppAlert?
     
     var body: some View {
         ZStack {
             ScrollView {
                 
-                VStack(alignment: .leading) {
-                    let array = characterManager.allCharacters.first(10)
-                        .map { $0.imageUrl ?? "" }
-                        .shuffled()
+                VStack(alignment: .center) {
                     
-                    ImageLoaderViewBuilder(
-                        imageUrls: array,
-                        animationDuration: 5.0,
-                        animationType: .blurReplace(.upUp))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 400)
-                    .clipShape(.rect(cornerRadius: 0))
-                    .padding(.bottom)
-                    
+                    imageLoaderRotation
                     signInText
                     textfieldEmail
                     secureFieldPassword
                     buttonSection
+                    registerSection
                 }
                 // Tap background to hide keyboard
                 .background(Color.black.opacity(0.001).onTapGesture {
                     hideKeyboard()
                 })
-                .showCustomAlert(alert: $showAlert)
+                .sheet(isPresented: $signInViewModel.showForgotPasswordView) {
+                    Text("forgotpassword")
+                        
+                        .presentationDetents([.medium])
+                }
+                .showCustomAlert(alert: $signInViewModel.showAlert)
             }
         }
+    }
+    
+    @ViewBuilder
+    private var imageLoaderRotation: some View {
+        let array = characterManager.allCharacters.first(10)
+            .map { $0.imageUrl ?? "" }
+            .shuffled()
+        
+        ImageLoaderViewBuilder(
+            imageUrls: array,
+            animationDuration: 5.0,
+            animationType: .blurReplace(.upUp))
+        .frame(maxWidth: .infinity)
+        .frame(height: 400)
+        .clipShape(.rect(cornerRadius: 0))
+        .padding(.bottom)
     }
     
     private var signInText: some View {
@@ -54,45 +65,48 @@ struct SignInView: View {
     }
     
     private var textfieldEmail: some View {
-        TextField(text: .constant("")) {
-            Text("Email")
-                .bold()
-        }
-        .padding()
-        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal)
-        .textContentType(.emailAddress)
-        .focused($focusState, equals: .email)
-        .submitLabel(.continue)
-        .onSubmit {
-            focusState = .password
-        }
-        
+        CustomTexfield(text: $signInViewModel.emailText)
+            .focused($focusState, equals: .email)
+            .onChange(of: signInViewModel.emailText) { _, _ in
+                signInViewModel.updateSignInValidation()
+            }
+            .onSubmit {
+                focusState = .password
+            }
     }
     
     private var secureFieldPassword: some View {
-        SecureField(text: .constant("")) {
-            Text("Password")
-                .bold()
+        CustomSecureField(
+            passwordText: $signInViewModel.passwordText,
+            forgetPasswordAction: signInViewModel.onForgotPasswordAction
+        )
+        .onChange(of: signInViewModel.passwordText) {
+            signInViewModel.updateSignInValidation()
         }
-        .textContentType(.password)
         .focused($focusState, equals: .password)
-        .submitLabel(.done)
-        
-        .padding()
-        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
-        .frame(maxWidth: .infinity)
-        .padding()
+        .padding(.bottom)
     }
     
     private var buttonSection: some View {
         Text("Continue")
-            .callToActionButton()
+            .callToActionButton(backgroundColor: signInViewModel.signInValidated ? .red : .gray)
             .padding(.horizontal)
             .toAnyButton {
-                showAlert = AnyAppAlert(error: URLError(.badURL))
+                do {
+                    try signInViewModel.performSignIn()
+                } catch {
+                    signInViewModel.showAlert = AnyAppAlert(error: error)
+                }
             }
+            .disabled(signInViewModel.signInValidated == false)
+    }
+    
+    private var registerSection: some View {
+        Text("Create account")
+            .font(.headline)
+            .foregroundStyle(.link)
+            .padding()
+            .toAnyButton { }
     }
 }
 
@@ -102,12 +116,20 @@ struct SignInView: View {
         repository: CharacterServiceImpl()
     )
     
-    return NavigationStack {
+    let viewModel = SignInViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: manager
+        )
+    )
+    
+    NavigationStack {
         
         if manager.isLoading {
-            SignInView().redacted(reason: .placeholder).environment(manager)
+            SignInView(signInViewModel: viewModel)
+                .redacted(reason: .placeholder)
+                .environment(manager)
         } else {
-            SignInView()
+            SignInView(signInViewModel: viewModel)
                 .environment(manager)
         }
     }
@@ -116,19 +138,23 @@ struct SignInView: View {
 #Preview("Mock") {
     
     @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
-            characters: .mock, delay: 0.1
+        repository: CharacterServiceMock(characters: .mock, delay: 0.1)
+    )
+    
+    let viewModel = SignInViewModelImpl(
+        interactor: CoreInteractor(
+            characterManager: manager
         )
     )
     
     return NavigationStack {
         
         if manager.isLoading {
-            SignInView()
+            SignInView(signInViewModel: viewModel)
                 .redacted(reason: .placeholder)
                 .environment(manager)
         } else {
-            SignInView()
+            SignInView(signInViewModel: viewModel)
                 .environment(manager)
         }
     }

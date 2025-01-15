@@ -23,7 +23,13 @@ struct SignInProcessView: View {
                 signInButton
             }
             .sheet(isPresented: $showSignInView) {
-                SignInView()
+                SignInView(
+                    signInViewModel: SignInViewModelImpl(
+                        interactor: CoreInteractor(
+                            characterManager: characterManager
+                        )
+                    )
+                )
             }
 
             .padding()
