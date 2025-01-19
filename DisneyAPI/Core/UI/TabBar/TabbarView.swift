@@ -54,12 +54,12 @@ struct TabbarView: View {
 
 #Preview("Real characters") {
     
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
+    @Previewable @State var manager = DisneyManagerImpl(
+        repository: DisneyServiceImpl()
     )
     
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     let viewModel = TabbarViewViewModelImpl(
         interactor: CoreInteractor(
             container: container
@@ -72,8 +72,8 @@ struct TabbarView: View {
 
 #Preview("Mock characters") {
     
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    @Previewable @State var manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .mock
         )
     )
@@ -91,8 +91,8 @@ struct TabbarView: View {
 
 #Preview("With signIn view") {
     
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    @Previewable @State var manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .mock
         )
     )

@@ -76,12 +76,12 @@ struct OnboardingView: View {
 #Preview("With image") {
     
     let container = DevPreview.shared.container
-    let manager = CharacterManagerImpl(repository: CharacterServiceImpl())
-    container.register(CharacterManagerImpl.self, service: manager)
+    let manager = DisneyManagerImpl(repository: DisneyServiceImpl())
+    container.register(DisneyManagerImpl.self, service: manager)
     
     let viewModel = OnboardingViewModelImpl(interactor: CoreInteractor(container: container))
     
-    return OnboardingView(viewModel: viewModel)
+     return OnboardingView(viewModel: viewModel)
 }
 
 #Preview("Mock image") {
@@ -100,13 +100,13 @@ struct OnboardingView: View {
 #Preview("W/out image") {
     
     let container = DevPreview.shared.container
-    let manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    let manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .emptyMock
         )
     )
     
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     
     return OnboardingView(
         viewModel: OnboardingViewModelImpl(

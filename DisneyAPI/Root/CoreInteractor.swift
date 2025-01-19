@@ -7,12 +7,12 @@
 
 @MainActor
 struct CoreInteractor {
-    private let characterManager: CharacterManagerImpl
+    private let characterManager: DisneyManagerImpl
     private let authManager: AuthManagerImpl
     private let appState: AppStateImpl
     
     init(container: DependencyContainer) {
-        self.characterManager = container.resolve(CharacterManagerImpl.self)!
+        self.characterManager = container.resolve(DisneyManagerImpl.self)!
         self.authManager = container.resolve(AuthManagerImpl.self)!
         self.appState = container.resolve(AppStateImpl.self)!
     }

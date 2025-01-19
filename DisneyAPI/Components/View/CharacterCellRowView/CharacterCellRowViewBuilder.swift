@@ -81,8 +81,8 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     
     @Previewable @State var searchText: String = ""
     let container = DevPreview.shared.container
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
+    let characterManager = DisneyManagerImpl(
+        repository: DisneyServiceImpl()
     )
     
     let viewModel = SearchViewModelImpl(
@@ -105,8 +105,8 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
     @Previewable @State var searchText: String = ""
     let container = DevPreview.shared.container
 
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .mock)
+    let characterManager = DisneyManagerImpl(
+        repository: DisneyServiceMock(characters: .mock)
     )
     
     let viewModel = SearchViewModelImpl(

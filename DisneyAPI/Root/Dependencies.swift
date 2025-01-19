@@ -10,18 +10,18 @@ import SwiftUICore
 @MainActor
 struct Dependencies {
     let container: DependencyContainer
-    let characterManager: CharacterManagerImpl
+    let characterManager: DisneyManagerImpl
     let authManager: AuthManagerImpl
     let appState: AppStateImpl
     
     init() {
-        self.characterManager = CharacterManagerImpl(repository: CharacterServiceImpl())
-        // self.characterManager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock))
+        self.characterManager = DisneyManagerImpl(repository: DisneyServiceImpl())
+        // self.characterManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
         self.authManager = AuthManagerImpl(repository: AuthManagerServiceImpl())
         self.appState = AppStateImpl()
         
         let container = DependencyContainer()
-        container.register(CharacterManagerImpl.self, service: characterManager)
+        container.register(DisneyManagerImpl.self, service: characterManager)
         container.register(AuthManagerImpl.self, service: authManager)
         container.register(AppStateImpl.self, service: appState)
         self.container = container
@@ -41,18 +41,18 @@ struct DevPreview {
     
     var container: DependencyContainer {
         let container = DependencyContainer()
-        container.register(CharacterManagerImpl.self, service: characterManager)
+        container.register(DisneyManagerImpl.self, service: characterManager)
         container.register(AuthManagerImpl.self, service: authManager)
         container.register(AppStateImpl.self, service: appState)
         return container
     }
     
-    let characterManager: CharacterManagerImpl
+    let characterManager: DisneyManagerImpl
     let authManager: AuthManagerImpl
     let appState: AppStateImpl
     
     init() {
-        self.characterManager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock))
+        self.characterManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
         self.authManager = AuthManagerImpl(repository: MockAuthManagerService())
         self.appState = AppStateImpl()
     }

@@ -90,8 +90,8 @@ struct SignInProcessView: View {
 }
 
 #Preview("Regular view") {
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    @Previewable @State var manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .mock
         )
     )
@@ -102,8 +102,8 @@ struct SignInProcessView: View {
 
 #Preview("Sheet view") {
     
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    @Previewable @State var manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .mock
         )
     )

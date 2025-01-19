@@ -41,8 +41,8 @@ struct AppView: View {
 #Preview("Mock") {
     
     let container = DevPreview.shared.container
-    let manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(
+    let manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(
             characters: .mock,
             delay: 1.0
         )
@@ -55,7 +55,7 @@ struct AppView: View {
     )
     
     container
-        .register(CharacterManagerImpl.self, service: manager)
+        .register(DisneyManagerImpl.self, service: manager)
     
     return AppView(viewModel: viewModel)
     .previewEnvironment()

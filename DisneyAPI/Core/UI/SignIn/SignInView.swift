@@ -112,9 +112,9 @@ struct SignInView: View {
 }
 
 #Preview("Prod") {
-    let manager = CharacterManagerImpl(repository: CharacterServiceImpl())
+    let manager = DisneyManagerImpl(repository: DisneyServiceImpl())
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
 
     let viewModel = SignInViewModelImpl(
         interactor: CoreInteractor(
@@ -126,9 +126,9 @@ struct SignInView: View {
 }
 
 #Preview("Mock") {
-    let manager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock))
+    let manager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     let viewModel = SignInViewModelImpl(
         interactor: CoreInteractor(
             container: container

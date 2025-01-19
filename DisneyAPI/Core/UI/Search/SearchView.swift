@@ -169,7 +169,7 @@ struct SearchView: View {
 #Preview("Mock") {
     
     let container = DevPreview.shared.container
-    let manager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock, delay: 0.1))
+    let manager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock, delay: 0.1))
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
             container: container

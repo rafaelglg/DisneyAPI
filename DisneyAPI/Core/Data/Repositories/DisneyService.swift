@@ -1,15 +1,15 @@
 //
-//  CharacterService.swift
+//  DisneyService.swift
 //  DisneyAPI
 //
 //  Created by Rafael Loggiodice on 7/1/25.
 //
 
-protocol CharacterService: Sendable {
+protocol DisneyService: Sendable {
     func getAllCharacters() async throws -> CharacterModel
 }
 
-final class CharacterServiceMock: CharacterService, Sendable {
+final class DisneyServiceMock: DisneyService, Sendable {
     
     private let characters: CharacterModel
     let delay: Double
@@ -25,7 +25,7 @@ final class CharacterServiceMock: CharacterService, Sendable {
     }
 }
 
-final class CharacterServiceImpl: CharacterService, Sendable {
+final class DisneyServiceImpl: DisneyService, Sendable {
     private let networkService: NetworkService
     
     init(networkService: NetworkService = NetworkServiceImpl()) {

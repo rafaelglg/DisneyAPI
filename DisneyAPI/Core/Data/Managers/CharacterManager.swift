@@ -9,13 +9,13 @@ import Foundation
 
 @MainActor
 @Observable
-final class CharacterManagerImpl {
+final class DisneyManagerImpl {
     
-    private let repository: CharacterService
+    private let repository: DisneyService
     private(set) var allCharacters: [CharacterDataResponse] = []
     private(set) var isLoading: Bool = false
     
-    init(repository: CharacterService) {
+    init(repository: DisneyService) {
         self.repository = repository
     }
     

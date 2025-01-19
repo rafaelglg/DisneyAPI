@@ -67,12 +67,12 @@ struct HomeView: View {
 
 #Preview("Production") {
     
-    let manager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
+    let manager = DisneyManagerImpl(
+        repository: DisneyServiceImpl()
     )
     
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     let vmodel = HomeViewModelImpl(interactor: CoreInteractor(container: container))
     _ = vmodel.allCharacters.first(2)
     
@@ -85,8 +85,8 @@ struct HomeView: View {
 #Preview("With mocks") {
     
     let container = DevPreview.shared.container
-    let manager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock, delay: 0.1))
-    container.register(CharacterManagerImpl.self, service: manager)
+    let manager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock, delay: 0.1))
+    container.register(DisneyManagerImpl.self, service: manager)
     let viewModel = HomeViewModelImpl(interactor: CoreInteractor(container: container))
     
     return NavigationStack {
@@ -99,12 +99,12 @@ struct HomeView: View {
 
 #Preview("Empty cell") {
     
-    let manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .emptyMock)
+    let manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(characters: .emptyMock)
     )
     
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     
     return NavigationStack {
         HomeView(viewModel: HomeViewModelImpl(interactor: CoreInteractor(container: container)))
@@ -113,12 +113,12 @@ struct HomeView: View {
 
 #Preview("Cell with delay") {
     
-    let manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .mock, delay: 3.0)
+    let manager = DisneyManagerImpl(
+        repository: DisneyServiceMock(characters: .mock, delay: 3.0)
     )
     
     let container = DevPreview.shared.container
-    container.register(CharacterManagerImpl.self, service: manager)
+    container.register(DisneyManagerImpl.self, service: manager)
     
     return NavigationStack {
         HomeView(
