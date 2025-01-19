@@ -17,10 +17,6 @@ final class CharacterManagerImpl {
     
     init(repository: CharacterService) {
         self.repository = repository
-        
-        Task {
-            await getAllCharacters()
-        }
     }
     
     func getAllCharacters() async {
@@ -31,7 +27,7 @@ final class CharacterManagerImpl {
         do {
             allCharacters = try await repository.getAllCharacters().data
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
 }

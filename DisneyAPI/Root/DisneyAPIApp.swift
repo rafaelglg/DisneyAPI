@@ -9,17 +9,29 @@ import SwiftUI
 
 @main
 struct DisneyAPIApp: App {
-    
-    let characterManager: CharacterManagerImpl = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
-    )
-    let appState: AppStateImpl = AppStateImpl()
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
         WindowGroup {
-            AppView()
+            AppView(
+                viewModel: AppViewModel(
+                    interactor: CoreInteractor(
+                        container: delegate.dependencies.container
+                    )
+                )
+            )
+            .environment(delegate.dependencies.container)
         }
-        .environment(appState)
-        .environment(characterManager)
+    }
+}
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    var dependencies: Dependencies!
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        
+        dependencies = Dependencies()
+        return true
     }
 }

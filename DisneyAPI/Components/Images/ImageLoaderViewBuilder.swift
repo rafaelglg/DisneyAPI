@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
-    @State var imageUrls: [String]?
+    @Binding var imageUrls: [String]
     
     @State var animationDuration: Double = 7.0
     @State var animationType: AnimationType
@@ -18,7 +18,7 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
     
     var body: some View {
         VStack {
-            if let imageUrls, !imageUrls.isEmpty {
+            if !imageUrls.isEmpty {
                 ImageLoaderView(
                     urlString: imageUrls[currentImageIndex]
                 )
@@ -33,20 +33,22 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
     }
     
     private func stopImageRotation() {
+        
         timer?.invalidate()
         timer = nil
     }
     
     private func startImageRotation() {
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             withAnimation(.easeInOut(duration: animationDuration)) {
                 loopingImage()
             }
         }
         
+        stopImageRotation()
         timer = Timer.scheduledTimer(withTimeInterval: animationDuration, repeats: true) { _ in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 withAnimation(.easeInOut(duration: animationDuration)) {
                     loopingImage()
                 }
@@ -54,22 +56,22 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
         }
     }
     
-    var placeholderImage: some View {
+    private var placeholderImage: some View {
         ImageLoaderView(urlString: "")
             .redacted(reason: .placeholder)
     }
     
-    func loopingImage() {
-        guard let imageUrls, !imageUrls.isEmpty else { return }
-        
-        // infinite loop: currentImageIndex + 1 = 1+1 % 2 = 0
+    private func loopingImage() {
+        guard !imageUrls.isEmpty else {
+            return
+        }
         currentImageIndex = (currentImageIndex + 1) % imageUrls.count
     }
 }
 
 #Preview("Animating image") {
     ImageLoaderViewBuilder(
-        imageUrls: Array(repeating: Constants.randomImage, count: 5),
+        imageUrls: .constant(Array(repeating: Constants.randomImage, count: 5)),
         animationDuration: 3.0,
         animationType: .blurReplace(.upUp)
     )
@@ -77,9 +79,25 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
     .clipShape(.rect(cornerRadius: 15))
 }
 
+#Preview("Animating image with delay") {
+    @Previewable @State var array: [String] = []
+    
+    return ImageLoaderViewBuilder(
+        imageUrls: $array,
+        animationDuration: 3.0,
+        animationType: .blurReplace(.upUp)
+    )
+    .task {
+        try? await Task.sleep(for: .seconds(1.0))
+        array = Array(repeating: Constants.randomImage, count: 5)
+    }
+    .frame(width: 300, height: 450)
+    .clipShape(.rect(cornerRadius: 15))
+}
+
 #Preview("Without image") {
     ImageLoaderViewBuilder(
-        imageUrls: [""],
+        imageUrls: .constant([""]),
         animationDuration: 5.0,
         animationType: .blurReplace(.upUp)
     )
@@ -89,7 +107,7 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
 
 #Preview("Empty value") {
     ImageLoaderViewBuilder(
-        imageUrls: [],
+        imageUrls: .constant([]),
         animationDuration: 5.0,
         animationType: .blurReplace(.upUp)
     )

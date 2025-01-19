@@ -135,67 +135,66 @@ struct SearchView: View {
 
 #Preview("Production") {
     
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
-    )
-    
+    let container = DevPreview.shared.container
+
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
+            .previewEnvironment()
     }
 }
 
 #Preview("Production with recentSearches") {
     
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
-    )
+    let container = DevPreview.shared.container
     
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     viewModel.recentSearches = ["mickey", "Minnie"]
     
     return NavigationStack {
         SearchView(viewModel: viewModel)
+            .previewEnvironment()
     }
 }
 
 #Preview("Mock") {
     
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .mock)
-    )
-    
+    let container = DevPreview.shared.container
+    let manager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock, delay: 0.1))
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     viewModel.isActiveSearch = true
+    viewModel.searchText = "queen"
     viewModel.searchCharacters(name: "queen")
     
-    return NavigationStack {
-        SearchView(viewModel: viewModel)
-    }
+    return SearchView(viewModel: viewModel)
+        .onAppear {
+            Task {
+                await manager.getAllCharacters()
+            }
+        }
+    
 }
 
 #Preview("No found character") {
     
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .mock)
-    )
+    let container = DevPreview.shared.container
     
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     viewModel.isActiveSearch = true

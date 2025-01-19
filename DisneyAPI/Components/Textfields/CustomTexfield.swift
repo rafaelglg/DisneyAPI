@@ -11,6 +11,7 @@ struct CustomTexfield: View {
     
     @Binding var text: String
     var prompt: String? = "Email"
+    var textContentType: UITextContentType = .emailAddress
     
     var body: some View {
         
@@ -18,19 +19,27 @@ struct CustomTexfield: View {
             Text(prompt ?? "")
                 .bold()
         }
-        .padding()
-        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
+        .frame(height: 54)
+        .padding(.horizontal)
+        .background(.textfieldBackground, in: RoundedRectangle(cornerRadius: 15))
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .textInputAutocapitalization(.never)
         .keyboardType(.emailAddress)
-        .textContentType(.emailAddress)
+        .textContentType(textContentType)
         .submitLabel(.continue)
+        .padding(.vertical)
     }
 }
 
-#Preview {
+#Preview() {
     
     @Previewable @State var text: String = ""
+    @Previewable @State var fullName: String = ""
     CustomTexfield(text: $text)
+    CustomTexfield(
+        text: $fullName,
+        prompt: "Jane doe",
+        textContentType: .name
+    )
 }

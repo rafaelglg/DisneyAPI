@@ -80,14 +80,14 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
 #Preview("Real case") {
     
     @Previewable @State var searchText: String = ""
-    
+    let container = DevPreview.shared.container
     let characterManager = CharacterManagerImpl(
         repository: CharacterServiceImpl()
     )
     
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     
@@ -103,14 +103,15 @@ struct CharacterCellRowViewBuilder<Content: View>: View {
 #Preview("Mock") {
     
     @Previewable @State var searchText: String = ""
-    
+    let container = DevPreview.shared.container
+
     let characterManager = CharacterManagerImpl(
         repository: CharacterServiceMock(characters: .mock)
     )
     
     let viewModel = SearchViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: characterManager
+            container: container
         )
     )
     viewModel.searchCharacters(name: "queen")

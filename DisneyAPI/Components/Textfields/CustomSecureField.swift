@@ -43,8 +43,8 @@ struct CustomSecureField: View {
         .submitLabel(.done)
         .frame(height: 54)
         .padding(.horizontal) // Move the prompt more to the left
-        .padding(.trailing, 120) // To clipped the text before the buttons
-        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
+        .padding(.trailing, forgotPassword ? 120 : 50) // To clipped the text before the buttons
+        .background(.textfieldBackground, in: RoundedRectangle(cornerRadius: 15))
         .frame(maxWidth: .infinity)
         .padding() // Sepate secureField from the safe area
     }
@@ -57,8 +57,8 @@ struct CustomSecureField: View {
         .textContentType(.password)
         .submitLabel(.done)
         .padding() // Move the prompt more to the left
-        .padding(.trailing, 120) // To clipped the text before the buttons
-        .background(Color.init(hex: "F3F2F9"), in: RoundedRectangle(cornerRadius: 15))
+        .padding(.trailing, forgotPassword ? 120 : 50) // To clipped the text before the buttons
+        .background(.textfieldBackground, in: RoundedRectangle(cornerRadius: 15))
         .frame(maxWidth: .infinity)
         .padding() // Sepate textfield from the safe area
     }
@@ -89,6 +89,7 @@ struct CustomSecureField: View {
 #Preview("With forgot password") {
     @Previewable @State var passwordText: String = ""
     @Previewable @State var forgotPasswordAction: Bool = false
+    @Previewable @State var passwordText2: String = ""
     
     NavigationStack {
         CustomSecureField(passwordText: $passwordText) {
@@ -99,14 +100,9 @@ struct CustomSecureField: View {
             Text("forgot password view")
                 .presentationDetents([.medium])
         }
+        
+        CustomSecureField(
+            passwordText: $passwordText2,
+            forgotPassword: false)
     }
-}
-
-#Preview("Not showing forgot pasword") {
-    @Previewable @State var passwordText: String = ""
-    
-    CustomSecureField(
-        passwordText: $passwordText,
-        forgotPassword: false)
-    
 }

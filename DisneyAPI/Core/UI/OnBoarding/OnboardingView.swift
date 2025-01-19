@@ -9,12 +9,12 @@ import SwiftUI
 
 struct OnboardingView: View {
     
-    @Environment(CharacterManagerImpl.self) var characterManager
-    @Environment(AppStateImpl.self) var appState
+    @State var viewModel: OnboardingViewModelImpl
     
     var body: some View {
         VStack(spacing: 8) {
-            ImageLoaderView(urlString: characterManager.allCharacters.getFirstAndShuffled { $0.imageUrl
+            
+            ImageLoaderView(urlString: viewModel.allCharacters.getFirstAndShuffled { $0.imageUrl
             } ?? "")
             .drawingGroup()
             .ignoresSafeArea()
@@ -26,6 +26,7 @@ struct OnboardingView: View {
             policyLinks
                 .padding(.vertical, 20)
         }
+        .onAppear(perform: viewModel.loadCharacters)
     }
     
     var titleSection: some View {
@@ -46,10 +47,11 @@ struct OnboardingView: View {
             .callToActionButton()
             .padding(.horizontal)
             .toAnyButton {
-                appState.updateViewState(showTabBarView: true)
+                viewModel.updateViewState(showTabBarView: true)
+                
                 Task {
-                    try? await Task.sleep(for: .seconds(1))
-                    appState.updateViewState(showSignIn: true)
+                    try? await Task.sleep(for: .seconds(1.2))
+                    viewModel.updateViewState(showSignIn: true)
                 }
             }
     }
@@ -73,24 +75,44 @@ struct OnboardingView: View {
 
 #Preview("With image") {
     
-    @Previewable @State var appState = AppStateImpl()
+    let container = DevPreview.shared.container
+    let manager = CharacterManagerImpl(repository: CharacterServiceImpl())
+    container.register(CharacterManagerImpl.self, service: manager)
     
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
+    let viewModel = OnboardingViewModelImpl(interactor: CoreInteractor(container: container))
+    
+    return OnboardingView(viewModel: viewModel)
+}
+
+#Preview("Mock image") {
+    
+    let container = DevPreview.shared.container
+    
+    OnboardingView(
+        viewModel: OnboardingViewModelImpl(
+            interactor: CoreInteractor(
+                container: container
+            )
+        )
     )
-    OnboardingView()
-        .environment(characterManager)
-        .environment(appState)
 }
 
 #Preview("W/out image") {
     
-    @Previewable @State var appState = AppStateImpl()
-    
-    let characterManager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .emptyMock)
+    let container = DevPreview.shared.container
+    let manager = CharacterManagerImpl(
+        repository: CharacterServiceMock(
+            characters: .emptyMock
+        )
     )
-    OnboardingView()
-        .environment(characterManager)
-        .environment(appState)
+    
+    container.register(CharacterManagerImpl.self, service: manager)
+    
+    return OnboardingView(
+        viewModel: OnboardingViewModelImpl(
+            interactor: CoreInteractor(
+                container: container
+            )
+        )
+    )
 }

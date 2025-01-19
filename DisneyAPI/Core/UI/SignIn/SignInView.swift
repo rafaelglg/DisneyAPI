@@ -9,12 +9,11 @@ import SwiftUI
 
 struct SignInView: View {
     
-    @Environment(CharacterManagerImpl.self) var characterManager
     @State var signInViewModel: SignInViewModelImpl
     @FocusState private var focusState: FieldState?
     
     var body: some View {
-        ZStack {
+        NavigationStack {
             ScrollView {
                 
                 VStack(alignment: .center) {
@@ -27,27 +26,22 @@ struct SignInView: View {
                     registerSection
                 }
                 // Tap background to hide keyboard
-                .background(Color.black.opacity(0.001).onTapGesture {
+                .background(Color.black.opacity(0.001)
+                    .onTapGesture {
                     hideKeyboard()
                 })
-                .sheet(isPresented: $signInViewModel.showForgotPasswordView) {
-                    Text("forgotpassword")
-                        
-                        .presentationDetents([.medium])
+                .onAppear(perform: signInViewModel.refreshCharacters)
+                .onChange(of: signInViewModel.accessInteractor.allCharacters) { _, newValue in
+                    signInViewModel.getCharacters(newValue)
                 }
                 .showCustomAlert(alert: $signInViewModel.showAlert)
             }
         }
     }
     
-    @ViewBuilder
     private var imageLoaderRotation: some View {
-        let array = characterManager.allCharacters.first(10)
-            .map { $0.imageUrl ?? "" }
-            .shuffled()
-        
         ImageLoaderViewBuilder(
-            imageUrls: array,
+            imageUrls: $signInViewModel.shuffledCharacters,
             animationDuration: 5.0,
             animationType: .blurReplace(.upUp))
         .frame(maxWidth: .infinity)
@@ -83,6 +77,10 @@ struct SignInView: View {
         .onChange(of: signInViewModel.passwordText) {
             signInViewModel.updateSignInValidation()
         }
+        .sheet(isPresented: $signInViewModel.showForgotPasswordView) {
+            Text("forgotpassword")
+                .presentationDetents([.medium])
+        }
         .focused($focusState, equals: .password)
         .padding(.bottom)
     }
@@ -106,56 +104,37 @@ struct SignInView: View {
             .font(.headline)
             .foregroundStyle(.link)
             .padding()
-            .toAnyButton { }
+            .toAnyButton(action: signInViewModel.onSignUpAction)
+            .navigationDestination(isPresented: $signInViewModel.showSignUpView) {
+                SignUpView()
+            }
     }
 }
 
 #Preview("Prod") {
-    
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
-    )
-    
+    let manager = CharacterManagerImpl(repository: CharacterServiceImpl())
+    let container = DevPreview.shared.container
+    container.register(CharacterManagerImpl.self, service: manager)
+
     let viewModel = SignInViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: manager
+            container: container
         )
     )
-    
-    NavigationStack {
-        
-        if manager.isLoading {
-            SignInView(signInViewModel: viewModel)
-                .redacted(reason: .placeholder)
-                .environment(manager)
-        } else {
-            SignInView(signInViewModel: viewModel)
-                .environment(manager)
-        }
-    }
+    return SignInView(signInViewModel: viewModel)
+        .task(manager.getAllCharacters)
 }
 
 #Preview("Mock") {
-    
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceMock(characters: .mock, delay: 0.1)
-    )
-    
+    let manager = CharacterManagerImpl(repository: CharacterServiceMock(characters: .mock))
+    let container = DevPreview.shared.container
+    container.register(CharacterManagerImpl.self, service: manager)
     let viewModel = SignInViewModelImpl(
         interactor: CoreInteractor(
-            characterManager: manager
+            container: container
         )
     )
     
-    return NavigationStack {
-        
-        if manager.isLoading {
-            SignInView(signInViewModel: viewModel)
-                .redacted(reason: .placeholder)
-                .environment(manager)
-        } else {
-            SignInView(signInViewModel: viewModel)
-                .environment(manager)
-        }
-    }
+    return SignInView(signInViewModel: viewModel)
+        .task(manager.getAllCharacters)
 }

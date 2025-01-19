@@ -9,6 +9,8 @@ import Foundation
 
 @MainActor
 protocol SignViewModelInteractor {
+    var allCharacters: [CharacterDataResponse] { get }
+    
     func signIn(email: String, password: String) async throws
 }
 
@@ -18,17 +20,43 @@ extension CoreInteractor: SignViewModelInteractor { }
 @Observable
 final class SignInViewModelImpl {
     
-    let interactor: SignViewModelInteractor
+    private let interactor: SignViewModelInteractor
     
     var emailText: String = ""
     var passwordText: String = ""
     var showAlert: AnyAppAlert?
-    
-    var signInValidated: Bool = false
     var showForgotPasswordView: Bool = false
+    var showSignUpView: Bool = false
+    var shuffledCharacters: [String] = []
+    
+    private(set) var allCharacters: [CharacterDataResponse] = []
+    private(set) var signInValidated: Bool = false
     
     init(interactor: SignViewModelInteractor) {
         self.interactor = interactor
+    }
+    
+    var accessInteractor: SignViewModelInteractor {
+        interactor
+    }
+    
+    func refreshCharacters() {
+        guard allCharacters.isEmpty else { return }
+        
+        let characters = interactor.allCharacters
+        getCharacters(characters)
+    }
+    
+    func getCharacters(_ newValue: [CharacterDataResponse]) {
+        allCharacters = newValue
+        shuffleCharacters()
+    }
+    
+    private func shuffleCharacters() {
+        shuffledCharacters = allCharacters
+            .shuffled()
+            .first(10)
+            .map { $0.imageUrl ?? "" }
     }
     
     // Método para validar ambos campos
@@ -56,7 +84,7 @@ final class SignInViewModelImpl {
         
         Task {
             do {
-                try await interactor.signIn(email: "", password: "")
+                try await interactor.signIn(email: emailText, password: passwordText)
             } catch {
                 throw error
             }
@@ -66,4 +94,9 @@ final class SignInViewModelImpl {
     func onForgotPasswordAction() {
         showForgotPasswordView.toggle()
     }
+    
+    func onSignUpAction() {
+        showSignUpView.toggle()
+    }
+    
 }

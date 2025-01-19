@@ -9,31 +9,43 @@ import SwiftUI
 
 struct TabbarView: View {
     
-    @Environment(AppStateImpl.self) var appState
-    @Environment(CharacterManagerImpl.self) var characterManager
+    @Environment(DependencyContainer.self) var container
+    @State var viewModel: TabbarViewViewModelImpl
     
     var body: some View {
-        @Bindable var appState = appState
+        
         TabView {
             Tab("Home", systemImage: "house") {
-                HomeView()
+                HomeView(
+                    viewModel: HomeViewModelImpl(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    )
+                )
             }
             
             Tab("Search", systemImage: "magnifyingglass") {
                 SearchView(
                     viewModel: SearchViewModelImpl(
                         interactor: CoreInteractor(
-                            characterManager: characterManager
+                            container: container
                         )
                     )
                 )
             }
             
             Tab("Profile", systemImage: "person") {
-                ProfileView()
+                ProfileView(
+                    viewModel: ProfileViewModel(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    )
+                )
             }
         }
-        .sheet(isPresented: $appState.shouldPresentSignIn) {
+        .sheet(isPresented: $viewModel.shouldPresentSignIn) {
             SignInProcessView()
                 .presentationDetents([.fraction(0.45)])
         }
@@ -45,12 +57,17 @@ struct TabbarView: View {
     @Previewable @State var manager = CharacterManagerImpl(
         repository: CharacterServiceImpl()
     )
-    @Previewable @State var appState = AppStateImpl()
-    appState.shouldPresentSignIn = true
     
-    return TabbarView()
-        .environment(manager)
-        .environment(appState)
+    let container = DevPreview.shared.container
+    container.register(CharacterManagerImpl.self, service: manager)
+    let viewModel = TabbarViewViewModelImpl(
+        interactor: CoreInteractor(
+            container: container
+        )
+    )
+    
+    return TabbarView(viewModel: viewModel)
+        .previewEnvironment()
 }
 
 #Preview("Mock characters") {
@@ -61,7 +78,33 @@ struct TabbarView: View {
         )
     )
     
-    TabbarView()
-        .environment(manager)
-        .environment(AppStateImpl())
+    let container = DevPreview.shared.container
+    let viewModel = TabbarViewViewModelImpl(
+        interactor: CoreInteractor(
+            container: container
+        )
+    )
+    
+    return TabbarView(viewModel: viewModel)
+        .previewEnvironment()
+}
+
+#Preview("With signIn view") {
+    
+    @Previewable @State var manager = CharacterManagerImpl(
+        repository: CharacterServiceMock(
+            characters: .mock
+        )
+    )
+    
+    let container = DevPreview.shared.container
+    let viewModel = TabbarViewViewModelImpl(
+        interactor: CoreInteractor(
+            container: container
+        )
+    )
+    viewModel.presentSignIn = true
+    
+    return TabbarView(viewModel: viewModel)
+        .previewEnvironment()
 }

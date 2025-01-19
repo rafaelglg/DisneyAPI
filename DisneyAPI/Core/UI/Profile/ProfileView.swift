@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ProfileView: View {
     
-    @Environment(AppStateImpl.self) var appState
+    @State var viewModel: ProfileViewModel
+    
     var body: some View {
         NavigationStack {
             List {
@@ -19,18 +20,22 @@ struct ProfileView: View {
                         initials: "RL",
                         fullName: "Rafael loggiodice",
                         email: "mail@gmail.com") {
-                        Text("hola")
-                    }
+                            Text("hola")
+                        }
                 }
                 
                 Text("Sign In")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.00001))
                     .toAnyButton {
-                        appState.updateViewState(showSignIn: true)
+                        viewModel.updateViewState(showSignIn: true)
                     }
                 
                 Text("Sign Out")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.00001))
                     .toAnyButton(role: .destructive) {
-                        appState.updateViewState(showTabBarView: false)
+                        viewModel.updateViewState(showTabBarView: false)
                     }
             }
             .navigationTitle("Profile")
@@ -39,6 +44,14 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView()
-        .environment(AppStateImpl())
+    
+    let container = DevPreview.shared.container
+    
+    ProfileView(
+        viewModel: ProfileViewModel(
+            interactor: CoreInteractor(
+                container: container
+            )
+        )
+    )        
 }

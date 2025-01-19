@@ -9,43 +9,54 @@ import SwiftUI
 
 struct AppView: View {
     
-    @Environment(CharacterManagerImpl.self) var characterManager
-    @Environment(AppStateImpl.self) var appState
+    @Environment(DependencyContainer.self) var container
+    @State var viewModel: AppViewModel
     
     var body: some View {
         ZStack {
-            if appState.showTabBar {
-                TabbarView()
-                    .transition(.move(edge: .trailing))
+            if viewModel.showTabBar {
+                TabbarView(
+                    viewModel: TabbarViewViewModelImpl(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    )
+                )
+                .transition(.move(edge: .trailing))
             } else {
-                OnboardingView()
-                    .transition(.move(edge: .leading))
+                OnboardingView(
+                    viewModel: OnboardingViewModelImpl(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    )
+                )
+                .transition(.move(edge: .leading))
             }
         }
-        .animation(.smooth, value: appState.showTabBar)
+        .animation(.smooth, value: viewModel.showTabBar)
     }
-}
-
-#Preview("Production") {
-    
-    @Previewable @State var manager = CharacterManagerImpl(
-        repository: CharacterServiceImpl()
-    )
-    
-    AppView()
-        .environment(manager)
-        .environment(AppStateImpl())
 }
 
 #Preview("Mock") {
     
-    @Previewable @State var manager = CharacterManagerImpl(
+    let container = DevPreview.shared.container
+    let manager = CharacterManagerImpl(
         repository: CharacterServiceMock(
-            characters: .mock, delay: 2.0
+            characters: .mock,
+            delay: 1.0
         )
     )
     
-    AppView()
-        .environment(manager)
-        .environment(AppStateImpl())
+    let viewModel = AppViewModel(
+        interactor: CoreInteractor(
+            container: container
+        )
+    )
+    
+    container
+        .register(CharacterManagerImpl.self, service: manager)
+    
+    return AppView(viewModel: viewModel)
+    .previewEnvironment()
 }

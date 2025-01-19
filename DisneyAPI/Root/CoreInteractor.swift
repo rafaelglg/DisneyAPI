@@ -8,18 +8,44 @@
 @MainActor
 struct CoreInteractor {
     private let characterManager: CharacterManagerImpl
+    private let authManager: AuthManagerImpl
+    private let appState: AppStateImpl
     
-    init(characterManager: CharacterManagerImpl) {
-        self.characterManager = characterManager
+    init(container: DependencyContainer) {
+        self.characterManager = container.resolve(CharacterManagerImpl.self)!
+        self.authManager = container.resolve(AuthManagerImpl.self)!
+        self.appState = container.resolve(AppStateImpl.self)!
+    }
+    
+    var allCharacters: [CharacterDataResponse] {
+        return characterManager.allCharacters
+    }
+    
+    var showTabBar: Bool {
+        return appState.showTabBar
+    }
+    
+    var shouldPresentSignIn: Bool {
+        get {
+            appState.shouldPresentSignIn
+        } set {
+            appState.shouldPresentSignIn = newValue
+        }
     }
     
     func getAllCharacters() async throws {
         await characterManager.getAllCharacters()
     }
     
-    var allCharacters: [CharacterDataResponse] {
-        characterManager.allCharacters
+    func signIn(email: String, password: String) async throws {
+        try await authManager.signIn(email: email, password: password)
     }
     
-    func signIn(email: String, password: String) async throws { }
+    func updateViewState(showTabBarView: Bool) {
+        appState.updateViewState(showTabBarView: showTabBarView)
+    }
+    
+    func updateViewState(showSignIn: Bool) {
+        appState.updateViewState(showSignIn: showSignIn)
+    }
 }

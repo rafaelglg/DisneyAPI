@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SignInProcessView: View {
     
-    @Environment(CharacterManagerImpl.self) var characterManager
+    @Environment(DependencyContainer.self) var container
     @Environment(\.dismiss) var dismiss
     @State var showSignInView: Bool = false
     
@@ -26,7 +26,7 @@ struct SignInProcessView: View {
                 SignInView(
                     signInViewModel: SignInViewModelImpl(
                         interactor: CoreInteractor(
-                            characterManager: characterManager
+                            container: container
                         )
                     )
                 )
@@ -97,7 +97,7 @@ struct SignInProcessView: View {
     )
     
     SignInProcessView()
-        .environment(manager)
+        .previewEnvironment()
 }
 
 #Preview("Sheet view") {
@@ -123,7 +123,7 @@ struct SignInProcessView: View {
     .onAppear { isSheetPresented.toggle() }
     .sheet(isPresented: $isSheetPresented) {
         SignInProcessView()
-            .environment(manager)
+            .previewEnvironment()
             .presentationDetents([.fraction(0.5)])
         
     }
