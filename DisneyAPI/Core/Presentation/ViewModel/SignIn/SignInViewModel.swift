@@ -28,6 +28,7 @@ final class SignInViewModelImpl {
     var showForgotPasswordView: Bool = false
     var showSignUpView: Bool = false
     var shuffledCharacters: [String] = []
+    var path: [SignInNavigation] = []
     
     private(set) var allCharacters: [CharacterDataResponse] = []
     private(set) var signInValidated: Bool = false
@@ -96,7 +97,7 @@ final class SignInViewModelImpl {
     }
     
     func onSignUpAction() {
-        showSignUpView.toggle()
+        path.append(.signUp)
     }
     
 }

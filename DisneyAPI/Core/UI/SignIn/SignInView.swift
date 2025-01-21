@@ -7,13 +7,21 @@
 
 import SwiftUI
 
+enum SignInNavigation: Hashable {
+    case signUp
+    case forgotPassword
+}
+
 struct SignInView: View {
     
+    @Environment(DependencyContainer.self) var container
     @State var signInViewModel: SignInViewModelImpl
     @FocusState private var focusState: FieldState?
+    var dismissProcessSheet: (() -> Void)?
+    @State var showforgotPasswordView: Bool = false
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $signInViewModel.path) {
             ScrollView {
                 
                 VStack(alignment: .center) {
@@ -28,8 +36,8 @@ struct SignInView: View {
                 // Tap background to hide keyboard
                 .background(Color.black.opacity(0.001)
                     .onTapGesture {
-                    hideKeyboard()
-                })
+                        hideKeyboard()
+                    })
                 .onAppear(perform: signInViewModel.refreshCharacters)
                 .onChange(of: signInViewModel.accessInteractor.allCharacters) { _, newValue in
                     signInViewModel.getCharacters(newValue)
@@ -78,8 +86,16 @@ struct SignInView: View {
             signInViewModel.updateSignInValidation()
         }
         .sheet(isPresented: $signInViewModel.showForgotPasswordView) {
-            Text("forgotpassword")
-                .presentationDetents([.medium])
+            ForgotPasswordView(
+                viewModel: ForgotPasswordViewModelImpl(
+                    interactor: CoreInteractor(
+                        container: container
+                    )
+                ),
+                dismissForgotProcess: {
+                signInViewModel.showForgotPasswordView = false
+            })
+                .presentationDetents([.fraction(0.50)])
         }
         .focused($focusState, equals: .password)
         .padding(.bottom)
@@ -105,8 +121,14 @@ struct SignInView: View {
             .foregroundStyle(.link)
             .padding()
             .toAnyButton(action: signInViewModel.onSignUpAction)
-            .navigationDestination(isPresented: $signInViewModel.showSignUpView) {
-                SignUpView()
+            .navigationDestination(for: SignInNavigation.self) { _ in
+                SignUpView(
+                    viewModel: SignUpViewModelImpl(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    ), dismissProcessSheet: dismissProcessSheet
+                )
             }
     }
 }
@@ -115,7 +137,7 @@ struct SignInView: View {
     let manager = DisneyManagerImpl(repository: DisneyServiceImpl())
     let container = DevPreview.shared.container
     container.register(DisneyManagerImpl.self, service: manager)
-
+    
     let viewModel = SignInViewModelImpl(
         interactor: CoreInteractor(
             container: container
@@ -123,6 +145,7 @@ struct SignInView: View {
     )
     return SignInView(signInViewModel: viewModel)
         .task(manager.getAllCharacters)
+        .previewEnvironment()
 }
 
 #Preview("Mock") {
@@ -137,4 +160,5 @@ struct SignInView: View {
     
     return SignInView(signInViewModel: viewModel)
         .task(manager.getAllCharacters)
+        .previewEnvironment()
 }

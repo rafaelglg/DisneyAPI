@@ -29,10 +29,10 @@ extension View {
         AnyView(self)
     }
     
-    func callToActionButton(backgroundColor: Color? = nil) -> some View {
+    func callToActionButton(backgroundColor: Color? = nil, role: ButtonRole? = nil) -> some View {
         self
             .font(.headline)
-            .foregroundStyle(.white)
+            .foregroundStyle(role == .destructive ? .red : .white)
             .frame(maxWidth: .infinity)
             .frame(height: 55)
             .background(backgroundColor ?? .red, in: RoundedRectangle(cornerRadius: 16))

@@ -11,9 +11,10 @@ import Foundation
 @Observable
 final class AuthManagerImpl {
     
-    private let repository: AuthManagerService
+    private let repository: AuthenticationService
+    private(set) var user: UserAuthModel?
     
-    init(repository: AuthManagerService) {
+    init(repository: AuthenticationService) {
         self.repository = repository
     }
     
@@ -27,5 +28,9 @@ final class AuthManagerImpl {
 
     func isValidPassword(password: String) -> Bool {
         repository.isValidPassword(password: password)
+    }
+    
+    func deleteAccount() async throws {
+        try await repository.deleteAccount()
     }
 }

@@ -23,46 +23,75 @@ enum ButtonStyleOption {
 extension View {
     
     @ViewBuilder
-    func toAnyButton(role: ButtonRole? = nil, option: ButtonStyleOption = .plain, action: @escaping () -> Void) -> some View {
+    func toAnyButton(role: ButtonRole? = nil, option: ButtonStyleOption = .plain, progress: Bool = false, action: @escaping () -> Void) -> some View {
         switch option {
         case .plain:
-            plainButton(role: role, action: action)
+            plainButton(progress: progress, action: action)
         case .press:
-            pressableButton(role: role, action: action)
+            pressableButton(progress: progress, action: action)
         }
     }
     
-    private func plainButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
-        Button(role: role, action: action) {
-            self
+    private func plainButton(progress: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            
+            ZStack {
+                if progress {
+                    ProgressView()
+                        .tint(.white)
+                        .callToActionButton()
+                } else {
+                    self
+                }
+            }
+            .buttonStyle(.plain)
         }
-        .foregroundColor(role == .destructive ? .red : nil)
-        .buttonStyle(.plain)
     }
     
-    private func pressableButton(role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
-        Button(role: role, action: action) {
-            self
+    private func pressableButton(progress: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            
+            ZStack {
+                if progress {
+                    ProgressView()
+                        .tint(.white)
+                        .callToActionButton()
+                } else {
+                    self
+                }
+            }
         }
-        .foregroundColor(role == .destructive ? .red : nil)
         .buttonStyle(PressableButtonStyle())
     }
 }
 
 #Preview {
+    @Previewable @State var isLoading: Bool = false
+    
     VStack {
         Text("Show custom buttons")
-            .padding()
             .frame(maxWidth: .infinity)
         
         Text("plain")
             .callToActionButton()
-            .padding(.horizontal)
             .toAnyButton { }
         
         Text("pressable")
             .callToActionButton()
-            .padding()
             .toAnyButton(option: .press) { }
+        
+        Text("with loading")
+            .callToActionButton(backgroundColor: .black)
+            .toAnyButton(option: .plain, progress: true) { }
+        
+        Text("Destructive")
+            .callToActionButton(backgroundColor: Color(uiColor: .quaternarySystemFill), role: .destructive)
+            .toAnyButton(option: .press) { }
+        
+        Text("Blue color")
+            .callToActionButton(backgroundColor: .blue)
+            .toAnyButton(option: .press) { }
+        
     }
+    .padding()
 }

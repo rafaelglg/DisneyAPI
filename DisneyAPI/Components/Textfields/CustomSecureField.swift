@@ -40,6 +40,7 @@ struct CustomSecureField: View {
             
         }
         .textContentType(.password)
+        
         .submitLabel(.done)
         .frame(height: 54)
         .padding(.horizontal) // Move the prompt more to the left
@@ -56,11 +57,12 @@ struct CustomSecureField: View {
         }
         .textContentType(.password)
         .submitLabel(.done)
-        .padding() // Move the prompt more to the left
+        .frame(height: 54)
+        .padding(.leading) // Move the prompt more to the left
         .padding(.trailing, forgotPassword ? 120 : 50) // To clipped the text before the buttons
         .background(.textfieldBackground, in: RoundedRectangle(cornerRadius: 15))
         .frame(maxWidth: .infinity)
-        .padding() // Sepate textfield from the safe area
+        .padding() // Separate textfield from the safe area
     }
     
     var eyesButton: some View {

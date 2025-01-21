@@ -46,8 +46,16 @@ struct TabbarView: View {
             }
         }
         .sheet(isPresented: $viewModel.shouldPresentSignIn) {
-            SignInProcessView()
+            if viewModel.user == nil {
+                SignInProcessView(
+                    viewModel: SignInProcessViewModelImpl(
+                        interactor: CoreInteractor(
+                            container: container
+                        )
+                    )
+                )
                 .presentationDetents([.fraction(0.45)])
+            }
         }
     }
 }

@@ -11,8 +11,9 @@ struct SignInProcessView: View {
     
     @Environment(DependencyContainer.self) var container
     @Environment(\.dismiss) var dismiss
-    @State var showSignInView: Bool = false
     
+    @State var viewModel: SignInProcessViewModelImpl
+        
     var body: some View {
         NavigationStack {
             VStack(spacing: 15) {
@@ -22,20 +23,20 @@ struct SignInProcessView: View {
                 googleButton
                 signInButton
             }
-            .sheet(isPresented: $showSignInView) {
+            .sheet(isPresented: $viewModel.showSignInView, onDismiss: onDismissSheet) {
                 SignInView(
                     signInViewModel: SignInViewModelImpl(
                         interactor: CoreInteractor(
                             container: container
                         )
-                    )
+                    ), dismissProcessSheet: { viewModel.showSignInView(false) }
                 )
             }
-
             .padding()
             .toolbar {
                 ToolbarItem(placement: .destructiveAction) {
                     Image(systemName: "x.circle.fill")
+                        .tint(.primary)
                         .toAnyButton { dismiss() }
                 }
             }
@@ -84,8 +85,14 @@ struct SignInProcessView: View {
             .background(Color.red, in: RoundedRectangle(cornerRadius: 15))
             .padding(.horizontal, 30)
             .toAnyButton(option: .press) {
-                showSignInView.toggle()
+                viewModel.showSignInView(true)
             }
+    }
+    
+    private func onDismissSheet() {
+        if true {
+            dismiss()
+        }
     }
 }
 
@@ -96,7 +103,9 @@ struct SignInProcessView: View {
         )
     )
     
-    SignInProcessView()
+    let container = DevPreview.shared.container
+    
+    SignInProcessView(viewModel: SignInProcessViewModelImpl(interactor: CoreInteractor(container: container)))
         .previewEnvironment()
 }
 
@@ -108,6 +117,7 @@ struct SignInProcessView: View {
         )
     )
     @Previewable @State var isSheetPresented: Bool = false
+    let container = DevPreview.shared.container
     
     ZStack {
         if isSheetPresented {
@@ -122,8 +132,7 @@ struct SignInProcessView: View {
     }
     .onAppear { isSheetPresented.toggle() }
     .sheet(isPresented: $isSheetPresented) {
-        SignInProcessView()
-            .previewEnvironment()
+        SignInProcessView(viewModel: SignInProcessViewModelImpl(interactor: CoreInteractor(container: container)))            .previewEnvironment()
             .presentationDetents([.fraction(0.5)])
         
     }

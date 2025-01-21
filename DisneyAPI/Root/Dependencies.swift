@@ -16,8 +16,8 @@ struct Dependencies {
     
     init() {
         self.characterManager = DisneyManagerImpl(repository: DisneyServiceImpl())
-        // self.characterManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
-        self.authManager = AuthManagerImpl(repository: AuthManagerServiceImpl())
+        // self.disneyManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
+        self.authManager = AuthManagerImpl(repository: FirebaseAuthService())
         self.appState = AppStateImpl()
         
         let container = DependencyContainer()
@@ -53,7 +53,7 @@ struct DevPreview {
     
     init() {
         self.characterManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
-        self.authManager = AuthManagerImpl(repository: MockAuthManagerService())
+        self.authManager = AuthManagerImpl(repository: MockAuthService())
         self.appState = AppStateImpl()
     }
 }

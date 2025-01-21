@@ -39,15 +39,7 @@ struct ImageLoaderViewBuilder<AnimationType: Transition>: View {
     }
     
     private func startImageRotation() {
-        
-        Task { @MainActor in
-            withAnimation(.easeInOut(duration: animationDuration)) {
-                loopingImage()
-            }
-        }
-        
-        stopImageRotation()
-        timer = Timer.scheduledTimer(withTimeInterval: animationDuration, repeats: true) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: animationDuration, repeats: true) {_ in
             Task { @MainActor in
                 withAnimation(.easeInOut(duration: animationDuration)) {
                     loopingImage()

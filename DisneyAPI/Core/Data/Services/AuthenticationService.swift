@@ -1,5 +1,5 @@
 //
-//  AuthManagerService.swift
+//  AuthenticationService.swift
 //  DisneyAPI
 //
 //  Created by Rafael Loggiodice on 16/1/25.
@@ -7,13 +7,14 @@
 
 import Foundation
 
-protocol AuthManagerService: Sendable {
+protocol AuthenticationService: Sendable {
     func signIn(email: String, password: String) async throws
     func isValidEmail(email: String) -> Bool
     func isValidPassword(password: String) -> Bool
+    func deleteAccount() async throws
 }
 
-struct MockAuthManagerService: AuthManagerService {
+struct MockAuthService: AuthenticationService {
     
     func signIn(email: String, password: String) async throws {
         
@@ -32,9 +33,11 @@ struct MockAuthManagerService: AuthManagerService {
         }
         return true
     }
+    
+    func deleteAccount() async throws { }
 }
 
-struct AuthManagerServiceImpl: AuthManagerService {
+struct FirebaseAuthService: AuthenticationService {
     
     func signIn(email: String, password: String) async throws {
         
@@ -51,4 +54,6 @@ struct AuthManagerServiceImpl: AuthManagerService {
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
         return passwordPredicate.evaluate(with: password)
     }
+    
+    func deleteAccount() async throws { }
 }

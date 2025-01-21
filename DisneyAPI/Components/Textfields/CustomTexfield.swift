@@ -12,6 +12,8 @@ struct CustomTexfield: View {
     @Binding var text: String
     var prompt: String? = "Email"
     var textContentType: UITextContentType = .emailAddress
+    var capitalized: TextInputAutocapitalization = .never
+    var keyboardType: UIKeyboardType = .emailAddress
     
     var body: some View {
         
@@ -24,8 +26,8 @@ struct CustomTexfield: View {
         .background(.textfieldBackground, in: RoundedRectangle(cornerRadius: 15))
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
-        .textInputAutocapitalization(.never)
-        .keyboardType(.emailAddress)
+        .textInputAutocapitalization(capitalized)
+        .keyboardType(keyboardType)
         .textContentType(textContentType)
         .submitLabel(.continue)
         .padding(.vertical)
