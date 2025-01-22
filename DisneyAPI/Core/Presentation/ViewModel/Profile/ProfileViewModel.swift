@@ -11,6 +11,7 @@ import Foundation
 protocol ProfileViewModelInteractor {
     func updateViewState(showTabBarView: Bool)
     func updateViewState(showSignIn: Bool)
+    var user: UserAuthModel? { get }
 }
 
 extension CoreInteractor: ProfileViewModelInteractor { }
@@ -20,8 +21,24 @@ extension CoreInteractor: ProfileViewModelInteractor { }
 final class ProfileViewModel {
     private let interactor: ProfileViewModelInteractor
     
+    private(set) var user: UserAuthModel?
+    
     init(interactor: ProfileViewModelInteractor) {
         self.interactor = interactor
+        getCurrentUser()
+    }
+    
+    var isAnonymous: Bool {
+        true
+    }
+    
+    func getCurrentUser() {
+        user = interactor.user
+    }
+    
+    func deleteAccount() {
+        
+        updateViewState(showTabBarView: true)
     }
     
     func updateViewState(showTabBarView: Bool) {

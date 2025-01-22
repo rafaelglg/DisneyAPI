@@ -23,7 +23,7 @@ enum ButtonStyleOption {
 extension View {
     
     @ViewBuilder
-    func toAnyButton(role: ButtonRole? = nil, option: ButtonStyleOption = .plain, progress: Bool = false, action: @escaping () -> Void) -> some View {
+    func toAnyButton(option: ButtonStyleOption = .plain, progress: Bool = false, action: @escaping () -> Void) -> some View {
         switch option {
         case .plain:
             plainButton(progress: progress, action: action)
