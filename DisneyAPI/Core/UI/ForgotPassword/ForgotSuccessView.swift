@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ForgotSuccessView: View {
+    var providedEmail: String = ""
     var dismissForgotProcess: (() -> Void)?
     
     var body: some View {
@@ -23,7 +24,7 @@ struct ForgotSuccessView: View {
                 .font(.largeTitle)
                 .bold()
             
-            Text("An email has been successfully sent to ''email'' with instructions to reset your password.")
+            Text("An email has been successfully sent to '\(providedEmail)' with instructions to reset your password.")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             
@@ -48,5 +49,5 @@ struct ForgotSuccessView: View {
 }
 
 #Preview {
-    ForgotSuccessView()
+    ForgotSuccessView(providedEmail: "mail@gmail.com")
 }

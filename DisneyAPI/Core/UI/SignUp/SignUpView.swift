@@ -22,6 +22,7 @@ struct SignUpView: View {
             passwordSection
             buttonSection
         }
+        .showCustomAlert(alert: $viewModel.showAlert)
     }
     
     var titleSection: some View {
@@ -63,13 +64,9 @@ struct SignUpView: View {
     }
     
     func signUpSuccess() {
-        viewModel.onChangeLoading(true)
+        viewModel.onChangeDismissProccessSheet(dismissProcessSheet)
         Task {
-            if let dismissProcessSheet {
-                try? await Task.sleep(for: .seconds(4))
-                dismissProcessSheet()
-                viewModel.onChangeLoading(false)
-            }
+            await viewModel.signUp()
         }
     }
 }

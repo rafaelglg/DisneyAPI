@@ -38,7 +38,10 @@ struct SignInView: View {
                     .onTapGesture {
                         hideKeyboard()
                     })
-                .onAppear(perform: signInViewModel.refreshCharacters)
+                .onAppear {
+                    signInViewModel.onChangeDismissProccessSheet(dismissProcessSheet)
+                    signInViewModel.refreshCharacters()
+                }
                 .onChange(of: signInViewModel.accessInteractor.allCharacters) { _, newValue in
                     signInViewModel.getCharacters(newValue)
                 }
@@ -104,15 +107,9 @@ struct SignInView: View {
     private var buttonSection: some View {
         Text("Continue")
             .callToActionButton(backgroundColor: signInViewModel.signInValidated ? .red : .gray)
-            .padding(.horizontal)
-            .toAnyButton {
-                do {
-                    try signInViewModel.performSignIn()
-                } catch {
-                    signInViewModel.showAlert = AnyAppAlert(error: error)
-                }
-            }
+            .toAnyButton(option: .press, progress: signInViewModel.isLoading, action: signInViewModel.onPerformSignIn)
             .disabled(signInViewModel.signInValidated == false)
+            .padding(.horizontal)
     }
     
     private var registerSection: some View {

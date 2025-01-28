@@ -12,6 +12,8 @@ protocol SignViewModelInteractor {
     var allCharacters: [CharacterDataResponse] { get }
     
     func signIn(email: String, password: String) async throws
+    func isValidEmail(email: String) -> Bool
+    func isValidPassword(password: String) -> Bool
 }
 
 extension CoreInteractor: SignViewModelInteractor { }
@@ -22,6 +24,11 @@ final class SignInViewModelImpl {
     
     private let interactor: SignViewModelInteractor
     
+    private(set) var allCharacters: [CharacterDataResponse] = []
+    private(set) var signInValidated: Bool = false
+    private(set) var isLoading: Bool = false
+    private(set) var dismissProcessSheet: (() -> Void)?
+    
     var emailText: String = ""
     var passwordText: String = ""
     var showAlert: AnyAppAlert?
@@ -29,9 +36,6 @@ final class SignInViewModelImpl {
     var showSignUpView: Bool = false
     var shuffledCharacters: [String] = []
     var path: [SignInNavigation] = []
-    
-    private(set) var allCharacters: [CharacterDataResponse] = []
-    private(set) var signInValidated: Bool = false
     
     init(interactor: SignViewModelInteractor) {
         self.interactor = interactor
@@ -60,36 +64,40 @@ final class SignInViewModelImpl {
             .map { $0.imageUrl ?? "" }
     }
     
-    // Método para validar ambos campos
+    // Method to valided both: email and password
     func updateSignInValidation() {
-        signInValidated = isValidEmail() && isValidPassword()
+        
+        let isEmailValid = interactor.isValidEmail(email: emailText)
+        let isPasswordValid = interactor.isValidPassword(password: passwordText)
+        
+        signInValidated = isEmailValid && isPasswordValid
     }
     
-    private func isValidEmail() -> Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: emailText)
-    }
-
-    private func isValidPassword() -> Bool {
-        let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
-        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
-        return passwordPredicate.evaluate(with: passwordText)
-    }
-    
-    func performSignIn() throws {
+    func onPerformSignIn() {
         
         guard signInValidated else {
-            throw URLError(.badURL)
+            showAlert = AnyAppAlert(title: "Email or password not correct. Please type again.")
+            return
         }
         
+        isLoading = true
+        
         Task {
+            
+            defer { isLoading = false }
+            
             do {
                 try await interactor.signIn(email: emailText, password: passwordText)
-            } catch {
-                throw error
+                dismissProcessSheet?()
+            } catch let error as NSError {
+                let errorMessage = CustomErrorMessage(errorDescription: error.getErrorMessage())
+                showAlert = AnyAppAlert(error: errorMessage)
             }
         }
+    }
+    
+    func onChangeDismissProccessSheet(_ newValue: (() -> Void)?) {
+        dismissProcessSheet = newValue
     }
     
     func onForgotPasswordAction() {

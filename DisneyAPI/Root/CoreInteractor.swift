@@ -49,7 +49,7 @@ struct CoreInteractor {
         appState.updateViewState(showSignIn: showSignIn)
     }
     
-    // MARK: - Authentication
+    // MARK: - Authentication Service (Firebase)
     
     var user: UserAuthModel? {
         authManager.user
@@ -59,17 +59,35 @@ struct CoreInteractor {
         try await authManager.signIn(email: email, password: password)
     }
     
+    func signInAnonymously() async throws -> UserAuthModel {
+        try await authManager.signInAnonymously()
+    }
+    
     func signUp(email: String, password: String) async throws {
-        try await authManager.signIn(email: email, password: password)
+        try await authManager.signUp(email: email, password: password)
+    }
+    
+    func sendPasswordReset(email: String) async throws {
+        try await authManager.sendPasswordReset(email: email)
+    }
+    
+    func getCurrentUser() throws -> UserAuthModel? {
+        try authManager.getCurrentUser()
+    }
+    
+    func signOut() throws {
+        try authManager.signOut()
+    }
+    
+    func deleteAccount() async throws {
+        try await authManager.deleteAccount()
     }
     
     func isValidEmail(email: String) -> Bool {
         authManager.isValidEmail(email: email)
     }
+    
     func isValidPassword(password: String) -> Bool {
         authManager.isValidPassword(password: password)
-    }
-    func deleteAccount() async throws {
-        try await authManager.deleteAccount()
     }
 }

@@ -11,6 +11,10 @@ import Foundation
 protocol AppViewInteractor {
     var showTabBar: Bool { get }
     var shouldPresentSignIn: Bool { get }
+    var user: UserAuthModel? { get }
+    
+    func updateViewState(showTabBarView: Bool)
+    func signInAnonymously() async throws -> UserAuthModel
 }
 
 extension CoreInteractor: AppViewInteractor { }
@@ -31,5 +35,24 @@ final class AppViewModel {
     
     init(interactor: AppViewInteractor) {
         self.interactor = interactor
+    }
+    
+    func checkUserStatus() {
+        if let user = interactor.user {
+            // user is authenticated
+            
+            print(user)
+            print("tiene usuario")
+        } else {
+            print("Es usuario anonimo")
+            Task {
+                do {
+                    let result = try await interactor.signInAnonymously()
+                    print("Sign in anonymous success: \(result.id)")
+                } catch {
+                    print("error sign in anonymous")
+                }
+            }
+        }
     }
 }

@@ -49,8 +49,7 @@ struct OnboardingView: View {
             .toAnyButton {
                 viewModel.updateViewState(showTabBarView: true)
                 
-                Task {
-                    try? await Task.sleep(for: .seconds(1.2))
+                if viewModel.user?.isAnonymous == true {
                     viewModel.updateViewState(showSignIn: true)
                 }
             }

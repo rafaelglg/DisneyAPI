@@ -14,18 +14,23 @@ struct ProfileView: View {
     var body: some View {
         NavigationStack {
             List {
-                
-                Section {
-                    SettingsRowCell(
-                        initials: "RL",
-                        fullName: "Rafael loggiodice",
-                        email: "mail@gmail.com")
-                }
-                
+                mainProfileSection
                 accountSection
                 applicationSection
             }
+            .showCustomAlert(alert: $viewModel.showAlert)
             .navigationTitle("Profile")
+        }
+    }
+    
+    var mainProfileSection: some View {
+        Section {
+            if !viewModel.isAnonymous {
+                SettingsRowCell(
+                    initials: viewModel.user?.initials,
+                    fullName: viewModel.user?.fullName,
+                    email: viewModel.user?.email)
+            }
         }
     }
     
@@ -39,22 +44,30 @@ struct ProfileView: View {
                     .toAnyButton {
                         viewModel.updateViewState(showSignIn: true)
                     }
+            } else {
+                
+                Text("Sign Out")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.00001))
+                    .toAnyButton(action: viewModel.onSignOut)
             }
             
-            Text("Sign Out")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.white.opacity(0.00001))
-                .toAnyButton {
-                    viewModel.updateViewState(showTabBarView: false)
-                }
-            
+            deleteSection
+        } header: {
+            Text("Account")
+        }
+    }
+    
+    @ViewBuilder
+    var deleteSection: some View {
+        if viewModel.isDeletingUser {
+            ProgressView()
+        } else {
             Text("Delete account")
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.white.opacity(0.00001))
                 .foregroundStyle(.red)
-                .toAnyButton(action: viewModel.deleteAccount)
-        } header: {
-            Text("Account")
+                .toAnyButton(action: viewModel.onDeleteAccountPressed)
         }
     }
     
@@ -83,7 +96,22 @@ struct ProfileView: View {
     }
 }
 
-#Preview {
+#Preview("Is anonymous") {
+    
+    let container = DevPreview.shared.container
+    let manager = AuthManagerImpl(repository: MockAuthService(selectMockUser: 1))
+    container.register(AuthManagerImpl.self, service: manager)
+    
+    return ProfileView(
+        viewModel: ProfileViewModel(
+            interactor: CoreInteractor(
+                container: container
+            )
+        )
+    )
+}
+
+#Preview("User authenticated") {
     
     let container = DevPreview.shared.container
     

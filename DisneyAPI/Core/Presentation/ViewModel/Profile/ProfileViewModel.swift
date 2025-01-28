@@ -6,12 +6,18 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 protocol ProfileViewModelInteractor {
+    
+    var user: UserAuthModel? { get }
+    
     func updateViewState(showTabBarView: Bool)
     func updateViewState(showSignIn: Bool)
-    var user: UserAuthModel? { get }
+    func deleteAccount() async throws
+    func signOut() async throws
+    func getCurrentUser() throws -> UserAuthModel?
 }
 
 extension CoreInteractor: ProfileViewModelInteractor { }
@@ -21,27 +27,66 @@ extension CoreInteractor: ProfileViewModelInteractor { }
 final class ProfileViewModel {
     private let interactor: ProfileViewModelInteractor
     
-    private(set) var user: UserAuthModel?
+    private(set) var isDeletingUser: Bool = false
     
-    init(interactor: ProfileViewModelInteractor) {
-        self.interactor = interactor
-        getCurrentUser()
+    var showAlert: AnyAppAlert?
+    
+    var user: UserAuthModel? {
+        return interactor.user
     }
     
     var isAnonymous: Bool {
-        true
+        return interactor.user?.isAnonymous ?? true
     }
     
-    func getCurrentUser() {
-        user = interactor.user
+    init(interactor: ProfileViewModelInteractor) {
+        self.interactor = interactor
     }
     
-    func deleteAccount() {
-        
-        updateViewState(showTabBarView: true)
+    func onSignOut() {
+        Task {
+            do {
+                try await interactor.signOut()
+                await updateViewState(showTabBarView: false)
+            } catch let error as NSError {
+                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage())
+                showAlert = AnyAppAlert(error: customError)
+            }
+        }
+    }
+    
+    func onDeleteAccountPressed() {
+        showAlert = AnyAppAlert(
+            title: "Delete Account?",
+            subtitle: "This action is permanent and cannot be undone. Your data will be deleted from our server forever.",
+            buttons: {
+            AnyView(Button("Delete", role: .destructive) {
+                self.onDeleteAccountConfirmed { [weak self] in
+                    await self?.updateViewState(showTabBarView: false)
+                }
+            })
+        })
+    }
+    
+    private func onDeleteAccountConfirmed(_ goToOnboarding: @escaping () async -> Void) {
+        isDeletingUser = true
+        Task {
+            do {
+                try await interactor.deleteAccount()
+                isDeletingUser = false
+                await goToOnboarding()
+            } catch {
+                showAlert = AnyAppAlert(error: error)
+            }
+        }
     }
     
     func updateViewState(showTabBarView: Bool) {
+        interactor.updateViewState(showTabBarView: showTabBarView)
+    }
+    
+    private func updateViewState(showTabBarView: Bool) async {
+        try? await Task.sleep(for: .seconds(0.1))
         interactor.updateViewState(showTabBarView: showTabBarView)
     }
     

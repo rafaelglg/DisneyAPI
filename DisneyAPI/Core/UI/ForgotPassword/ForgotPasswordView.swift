@@ -25,6 +25,7 @@ struct ForgotPasswordView: View {
                 emailSection
                 buttonSection
             }
+            .showCustomAlert(alert: $viewModel.showAlert)
             .toolbar {
                 ToolbarItem(placement: .destructiveAction) {
                     Image(systemName: "x.circle.fill")
@@ -58,20 +59,14 @@ struct ForgotPasswordView: View {
     var buttonSection: some View {
         Text("Send")
             .callToActionButton()
-            .toAnyButton(option: .press, progress: viewModel.isLoading, action: onSendPress)
+            .toAnyButton(option: .press, progress: viewModel.isLoading, action: viewModel.onSendPasswordReset)
             .padding()
             .navigationDestination(for: ForgotNavigationPath.self) { _ in
-                ForgotSuccessView(dismissForgotProcess: dismissForgotProcess)
+                ForgotSuccessView(
+                    providedEmail: viewModel.email,
+                    dismissForgotProcess: dismissForgotProcess
+                )
             }
-    }
-    
-    private func onSendPress() {
-        viewModel.onChangeLoading(true)
-        Task {
-            try? await Task.sleep(for: .seconds(2))
-            viewModel.path.append(.success)
-            viewModel.onChangeLoading(false)
-        }
     }
 }
 

@@ -23,23 +23,28 @@ final class SignUpViewModelImpl {
     var email: String = ""
     var fullName: String = ""
     var password: String = ""
+    var showAlert: AnyAppAlert?
     private(set) var isloading: Bool = false
+    private(set) var dismissProcessSheet: (() -> Void)?
     
     init(interactor: SignUpInteractor) {
         self.interactor = interactor
     }
     
-    func signUp() {
-        Task {
-            do {
-                try await interactor.signUp(email: email, password: password)
-            } catch {
-                print(error.localizedDescription)
-            }
+    func signUp() async {
+        isloading = true
+        
+        defer { isloading = false }
+        
+        do {
+            try await Task.sleep(for: .seconds(4))
+            dismissProcessSheet?()
+        } catch {
+            showAlert = AnyAppAlert(error: error)
         }
     }
     
-    func onChangeLoading(_ newValue: Bool) {
-        isloading = newValue
+    func onChangeDismissProccessSheet(_ newValue: (() -> Void)?) {
+        dismissProcessSheet = newValue
     }
 }

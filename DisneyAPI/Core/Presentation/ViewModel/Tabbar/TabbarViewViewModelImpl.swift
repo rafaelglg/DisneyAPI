@@ -20,9 +20,7 @@ import SwiftUI
 final class TabbarViewViewModelImpl {
     private var interactor: TabbarViewInteractor
     var user: UserAuthModel?
-    
-    var presentSignIn: Bool = false
-    
+        
     var shouldPresentSignIn: Bool {
         get {
             interactor.shouldPresentSignIn

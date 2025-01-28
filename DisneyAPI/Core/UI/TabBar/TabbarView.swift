@@ -46,16 +46,14 @@ struct TabbarView: View {
             }
         }
         .sheet(isPresented: $viewModel.shouldPresentSignIn) {
-            if viewModel.user == nil {
-                SignInProcessView(
-                    viewModel: SignInProcessViewModelImpl(
-                        interactor: CoreInteractor(
-                            container: container
-                        )
+            SignInProcessView(
+                viewModel: SignInProcessViewModelImpl(
+                    interactor: CoreInteractor(
+                        container: container
                     )
                 )
-                .presentationDetents([.fraction(0.45)])
-            }
+            )
+            .presentationDetents([.fraction(0.45)])
         }
     }
 }
@@ -111,7 +109,7 @@ struct TabbarView: View {
             container: container
         )
     )
-    viewModel.presentSignIn = true
+    viewModel.shouldPresentSignIn = true
     
     return TabbarView(viewModel: viewModel)
         .previewEnvironment()

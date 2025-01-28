@@ -34,6 +34,12 @@ struct AppView: View {
                 .transition(.move(edge: .leading))
             }
         }
+        .onAppear(perform: viewModel.checkUserStatus)
+        .onChange(of: viewModel.showTabBar) { _, newValue in
+            if !newValue {
+                viewModel.checkUserStatus()
+            }
+        }
         .animation(.smooth, value: viewModel.showTabBar)
     }
 }
