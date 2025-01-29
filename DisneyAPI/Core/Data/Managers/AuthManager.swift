@@ -28,6 +28,14 @@ final class AuthManagerImpl {
         user = try await repository.createAccount(email: email, password: password)
     }
     
+    func signInWithGoogle() async throws {
+        user = try await repository.signInWithGoogle()
+    }
+    
+    func reAuthenticateUser() async throws {
+        try await repository.reAuthenticateUser()
+    }
+    
     func signInAnonymously() async throws -> UserAuthModel {
         let result = try await repository.signInAnonymously()
         self.user = result

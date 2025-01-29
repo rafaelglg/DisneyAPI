@@ -67,6 +67,10 @@ struct CoreInteractor {
         try await authManager.signUp(email: email, password: password)
     }
     
+    func reAuthenticateUser() async throws {
+        try await authManager.reAuthenticateUser()
+    }
+    
     func sendPasswordReset(email: String) async throws {
         try await authManager.sendPasswordReset(email: email)
     }
@@ -81,6 +85,10 @@ struct CoreInteractor {
     
     func deleteAccount() async throws {
         try await authManager.deleteAccount()
+    }
+    
+    func signInWithGoogle() async throws {
+        try await authManager.signInWithGoogle()
     }
     
     func isValidEmail(email: String) -> Bool {

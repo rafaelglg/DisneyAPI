@@ -66,14 +66,10 @@ struct SignInProcessView: View {
     }
     
     var googleButton: some View {
-        Text("Continue with Google")
-            .foregroundStyle(.primary)
-            .bold()
-            .frame(height: 50)
-            .frame(maxWidth: .infinity)
-            .background(Color.teal, in: RoundedRectangle(cornerRadius: 15))
+        GoogleSignInButtonView {
+            viewModel.signInWithGoogle(action: dismiss)
+        }
             .padding(.horizontal, 30)
-            .toAnyButton(option: .press) { }
     }
     
     var signInButton: some View {
@@ -90,9 +86,7 @@ struct SignInProcessView: View {
     }
     
     private func onDismissSheet() {
-        if true {
-            dismiss()
-        }
+        viewModel.shouldDismissView(action: dismiss)
     }
 }
 

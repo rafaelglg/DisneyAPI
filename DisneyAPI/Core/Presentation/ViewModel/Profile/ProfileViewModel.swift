@@ -17,6 +17,7 @@ protocol ProfileViewModelInteractor {
     func updateViewState(showSignIn: Bool)
     func deleteAccount() async throws
     func signOut() async throws
+    func reAuthenticateUser() async throws
     func getCurrentUser() throws -> UserAuthModel?
 }
 
@@ -47,9 +48,9 @@ final class ProfileViewModel {
         Task {
             do {
                 try await interactor.signOut()
-                await updateViewState(showTabBarView: false)
+                updateViewState(showTabBarView: false)
             } catch let error as NSError {
-                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage())
+                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
                 showAlert = AnyAppAlert(error: customError)
             }
         }
@@ -62,7 +63,7 @@ final class ProfileViewModel {
             buttons: {
             AnyView(Button("Delete", role: .destructive) {
                 self.onDeleteAccountConfirmed { [weak self] in
-                    await self?.updateViewState(showTabBarView: false)
+                    await self?.updateViewStateAsync(showTabBarView: false)
                 }
             })
         })
@@ -75,8 +76,30 @@ final class ProfileViewModel {
                 try await interactor.deleteAccount()
                 isDeletingUser = false
                 await goToOnboarding()
+            } catch let error as NSError {
+                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
+                isDeletingUser = false
+                
+                if error.getErrorMessage().errorType == .requiresRecentLogin {
+                    showAlert = AnyAppAlert(title: "Error", subtitle: error.getErrorMessage().errorMessage) {
+                        AnyView(Button("Sign in") {
+                            // needs to sign in again reauthenticate
+                            self.reAuthenticateUser()
+                        })
+                    }
+                } else {
+                    showAlert = AnyAppAlert(error: customError)
+                }
+            }
+        }
+    }
+    
+    func reAuthenticateUser() {
+        Task {
+            do {
+                try await interactor.reAuthenticateUser()
             } catch {
-                showAlert = AnyAppAlert(error: error)
+                print(error)
             }
         }
     }
@@ -85,7 +108,7 @@ final class ProfileViewModel {
         interactor.updateViewState(showTabBarView: showTabBarView)
     }
     
-    private func updateViewState(showTabBarView: Bool) async {
+    private func updateViewStateAsync(showTabBarView: Bool) async {
         try? await Task.sleep(for: .seconds(0.1))
         interactor.updateViewState(showTabBarView: showTabBarView)
     }

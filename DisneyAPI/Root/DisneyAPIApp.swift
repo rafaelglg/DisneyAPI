@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import GoogleSignIn
 
 @main
 struct DisneyAPIApp: App {
@@ -33,7 +34,16 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         
         FirebaseApp.configure()
+        configureGoogleSignIn()
+        
         dependencies = Dependencies()
         return true
+    }
+    
+    func configureGoogleSignIn() {
+        let googleClientID = FirebaseApp.app()?.options.clientID ?? ""
+        // Create Google Sign In configuration object.
+        let config = GIDConfiguration(clientID: googleClientID)
+        GIDSignIn.sharedInstance.configuration = config
     }
 }

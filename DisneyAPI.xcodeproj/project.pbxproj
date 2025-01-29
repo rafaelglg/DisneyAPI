@@ -9,15 +9,30 @@
 /* Begin PBXBuildFile section */
 		537112EC2D4144F8001AB89D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 537112EB2D4144F8001AB89D /* FirebaseAuth */; };
 		537112EE2D4144F8001AB89D /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 537112ED2D4144F8001AB89D /* FirebaseFirestore */; };
+		53952FC62D48F907001F49FE /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 53952FC52D48F907001F49FE /* GoogleSignIn */; };
+		53952FC82D48F907001F49FE /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 53952FC72D48F907001F49FE /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		53EB2CB22D2C6E7F007363BC /* DisneyAPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DisneyAPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		53952FCC2D48FA86001F49FE /* Exceptions for "DisneyAPI" folder in "DisneyAPI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 53EB2CB12D2C6E7F007363BC /* DisneyAPI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		53EB2CB42D2C6E7F007363BC /* DisneyAPI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				53952FCC2D48FA86001F49FE /* Exceptions for "DisneyAPI" folder in "DisneyAPI" target */,
+			);
 			path = DisneyAPI;
 			sourceTree = "<group>";
 		};
@@ -30,6 +45,8 @@
 			files = (
 				537112EC2D4144F8001AB89D /* FirebaseAuth in Frameworks */,
 				537112EE2D4144F8001AB89D /* FirebaseFirestore in Frameworks */,
+				53952FC62D48F907001F49FE /* GoogleSignIn in Frameworks */,
+				53952FC82D48F907001F49FE /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +92,8 @@
 			packageProductDependencies = (
 				537112EB2D4144F8001AB89D /* FirebaseAuth */,
 				537112ED2D4144F8001AB89D /* FirebaseFirestore */,
+				53952FC52D48F907001F49FE /* GoogleSignIn */,
+				53952FC72D48F907001F49FE /* GoogleSignInSwift */,
 			);
 			productName = DisneyAPI;
 			productReference = 53EB2CB22D2C6E7F007363BC /* DisneyAPI.app */;
@@ -106,6 +125,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				537112EA2D4144F8001AB89D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				53952FC42D48F907001F49FE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 53EB2CB32D2C6E7F007363BC /* Products */;
@@ -294,6 +314,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DisneyAPI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Disney;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -326,6 +347,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DisneyAPI/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Disney;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -378,6 +400,14 @@
 				minimumVersion = 11.7.0;
 			};
 		};
+		53952FC42D48F907001F49FE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -390,6 +420,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 537112EA2D4144F8001AB89D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		53952FC52D48F907001F49FE /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53952FC42D48F907001F49FE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		53952FC72D48F907001F49FE /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53952FC42D48F907001F49FE /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

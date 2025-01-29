@@ -27,6 +27,7 @@ struct ProfileView: View {
         Section {
             if !viewModel.isAnonymous {
                 SettingsRowCell(
+                    profilePicture: viewModel.user?.profilePicture,
                     initials: viewModel.user?.initials,
                     fullName: viewModel.user?.fullName,
                     email: viewModel.user?.email)

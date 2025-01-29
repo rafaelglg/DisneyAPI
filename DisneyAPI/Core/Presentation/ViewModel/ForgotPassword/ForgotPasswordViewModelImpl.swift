@@ -43,7 +43,7 @@ final class ForgotPasswordViewModelImpl {
                 try await interactor.sendPasswordReset(email: email)
                 path.append(.success)
             } catch let error as NSError {
-                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage())
+                let customError = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
                 showAlert = AnyAppAlert(error: customError)
             }
         }

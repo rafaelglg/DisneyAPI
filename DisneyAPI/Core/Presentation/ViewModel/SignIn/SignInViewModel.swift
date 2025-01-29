@@ -90,7 +90,7 @@ final class SignInViewModelImpl {
                 try await interactor.signIn(email: emailText, password: passwordText)
                 dismissProcessSheet?()
             } catch let error as NSError {
-                let errorMessage = CustomErrorMessage(errorDescription: error.getErrorMessage())
+                let errorMessage = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
                 showAlert = AnyAppAlert(error: errorMessage)
             }
         }

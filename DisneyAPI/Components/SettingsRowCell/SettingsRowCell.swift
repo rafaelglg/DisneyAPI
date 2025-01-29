@@ -9,15 +9,20 @@ import SwiftUI
 
 struct SettingsRowCell<Destination: View>: View {
     
+    var profilePicture: String? = ""
     var initials: String? = ""
     var fullName: String? = ""
     var email: String? = ""
     var destination: Destination?
     
-    init(initials: String? = "",
-         fullName: String? = "",
-         email: String? = "",
-         destination: (() -> Destination)? = nil) {
+    init(
+        profilePicture: String? = "",
+        initials: String? = "",
+        fullName: String? = "",
+        email: String? = "",
+        destination: (() -> Destination)? = nil
+    ) {
+        self.profilePicture = profilePicture
         self.initials = initials
         self.fullName = fullName
         self.email = email
@@ -29,42 +34,59 @@ struct SettingsRowCell<Destination: View>: View {
         if let destination {
             NavigationLink(destination: destination) {
                 HStack {
-                    Text(initials ?? "")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .frame(width: 73, height: 73)
-                        .background(Color(.systemGray3))
-                        .clipShape(.circle)
+                    profilePictureSection
                     
                     VStack(alignment: .leading, spacing: 5) {
-                        Text(fullName ?? "")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        Text(email ?? "")
-                            .font(.footnote)
-                            .tint(.gray)
+                        fullNameSection
+                        emailSection
                     }
                 }
             }
         } else {
             HStack {
-                Text(initials ?? "")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .frame(width: 73, height: 73)
-                    .background(Color(.systemGray3))
-                    .clipShape(.circle)
+                profilePictureSection
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(fullName ?? "")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    Text(email ?? "")
-                        .font(.footnote)
-                        .tint(.gray)
+                    fullNameSection
+                    emailSection
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    var profilePictureSection: some View {
+        
+        if let profilePicture = profilePicture, !profilePicture.isEmpty {
+            AsyncImage(url: URL(string: profilePicture)) { image in
+                image.resizable()
+                    .frame(width: 73, height: 73)
+                    .clipShape(.circle)
+            } placeholder: {
+                Circle()
+                    .frame(width: 73, height: 73)
+                    .redacted(reason: .placeholder)
+            }
+        } else {
+            Text(initials ?? "")
+                .font(.title)
+                .fontWeight(.semibold)
+                .frame(width: 73, height: 73)
+                .background(Color(.systemGray3))
+                .clipShape(.circle)
+        }
+    }
+    
+    var fullNameSection: some View {
+        Text(fullName ?? "")
+            .font(.subheadline)
+            .fontWeight(.semibold)
+    }
+    
+    var emailSection: some View {
+        Text(email ?? "")
+            .font(.footnote)
+            .tint(.gray)
     }
 }
 
@@ -74,6 +96,20 @@ struct SettingsRowCell<Destination: View>: View {
             SettingsRowCell(initials: "RL", fullName: "Rafael Loggiodice", email: "mail@gmail.com") {
                 Text("hola")
             }
+        }
+    }
+}
+
+#Preview("W/ profilePicture") {
+    @Previewable @State var url: String = ""
+    
+    return NavigationStack {
+        List {
+            SettingsRowCell(profilePicture: url, initials: "MJ", fullName: "Michael Jackson")
+                .task {
+                    try? await Task.sleep(for: .seconds(2))
+                    url = "https://lh3.googleusercontent.com/a/ACg8ocLgqtxHCq5PLnzKWGPoBhTzhSyeBvHjwfBw80F4M_E9OVAJqw=s96-c"
+                }
         }
     }
 }
@@ -108,9 +144,13 @@ struct SettingsRowCell<Destination: View>: View {
 
 /// Add this extension to have the posibility when the destination is nil to not have it as parameter when initialize
 extension SettingsRowCell where Destination == EmptyView {
-    init(initials: String? = "",
-         fullName: String? = "",
-         email: String? = "") {
+    init(
+        profilePicture: String? = "",
+        initials: String? = "",
+        fullName: String? = "",
+        email: String? = ""
+    ) {
+        self.profilePicture = profilePicture
         self.initials = initials
         self.fullName = fullName
         self.email = email

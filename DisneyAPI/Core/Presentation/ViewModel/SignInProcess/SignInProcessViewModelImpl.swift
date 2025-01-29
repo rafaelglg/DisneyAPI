@@ -6,10 +6,13 @@
 //
 
 import Foundation
+import SwiftUI
 
 @MainActor
 protocol SignInProcessInteractor {
     var user: UserAuthModel? { get }
+    
+    func signInWithGoogle() async throws
 }
 
 extension CoreInteractor: SignInProcessInteractor { }
@@ -35,4 +38,20 @@ final class SignInProcessViewModelImpl {
         showSignInView = newValue
     }
     
+    func signInWithGoogle(action: DismissAction) {
+        Task {
+            do {
+                try await interactor.signInWithGoogle()
+                action()
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func shouldDismissView(action: DismissAction) {
+        if interactor.user?.isAnonymous == false {
+            action()
+        }
+    }
 }
