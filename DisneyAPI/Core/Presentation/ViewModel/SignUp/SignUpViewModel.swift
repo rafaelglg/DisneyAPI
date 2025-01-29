@@ -37,7 +37,7 @@ final class SignUpViewModelImpl {
         defer { isloading = false }
         
         do {
-            try await Task.sleep(for: .seconds(4))
+            try await interactor.signUp(email: email, password: password)
             dismissProcessSheet?()
         } catch {
             showAlert = AnyAppAlert(error: error)

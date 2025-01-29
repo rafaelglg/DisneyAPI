@@ -9,7 +9,7 @@ import GoogleSignIn
 
 extension UserAuthModel {
     /// Transform User from firebase to local user
-    init(user: User) {
+    init(user: User, password: String = "") {
         self.id = user.uid
         self.fullName = user.displayName ?? ""
         self.isAnonymous = user.isAnonymous
@@ -17,7 +17,7 @@ extension UserAuthModel {
         self.dateCreated = user.metadata.creationDate
         self.lastSignInDate = user.metadata.lastSignInDate
         self.profilePicture = user.photoURL?.absoluteString
-        self.password = nil
+        self.password = password
     }
     
     init(user: User, googleProfile: GIDProfileData?) {
@@ -33,8 +33,13 @@ extension UserAuthModel {
 }
 
 extension AuthDataResult {
-    var toUserAuthModel: UserAuthModel {
-        let user = UserAuthModel(user: self.user)
+    func toUserAuthModel(with password: String = "") -> UserAuthModel {
+        let user = UserAuthModel(user: self.user, password: password)
+        return user
+    }
+    
+    func toUserAuthModel(withUser user: UserAuthModel) -> UserAuthModel {
+        let user = UserAuthModel(id: user.id, fullName: user.fullName, email: user.email, password: user.password, dateCreated: user.dateCreated, profilePicture: user.profilePicture, isAnonymous: user.isAnonymous, lastSignInDate: user.lastSignInDate)
         return user
     }
     
@@ -43,5 +48,11 @@ extension AuthDataResult {
             user: self.user,
             googleProfile: googleProfile
         )
+    }
+}
+
+extension GIDProfileData {
+    func toUserAuthModel(with user: User) -> UserAuthModel {
+        return UserAuthModel(user: user, googleProfile: self)
     }
 }

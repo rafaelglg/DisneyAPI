@@ -33,7 +33,7 @@ final class AuthManagerImpl {
     }
     
     func reAuthenticateUser() async throws {
-        try await repository.reAuthenticateUser()
+        user = try await repository.reAuthenticateUser()
     }
     
     func signInAnonymously() async throws -> UserAuthModel {

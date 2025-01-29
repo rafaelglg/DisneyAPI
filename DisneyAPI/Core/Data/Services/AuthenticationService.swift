@@ -17,7 +17,7 @@ protocol AuthenticationService: Sendable {
     func deleteAccount() async throws
     func sendPasswordReset(toEmail email: String) async throws
     func signInWithGoogle() async throws -> UserAuthModel
-    func reAuthenticateUser() async throws
+    func reAuthenticateUser() async throws -> UserAuthModel?
     
     func isValidEmail(email: String) -> Bool
     func isValidPassword(password: String) -> Bool
@@ -43,8 +43,8 @@ struct MockAuthService: AuthenticationService {
         return .mock
     }
     
-    func reAuthenticateUser() async throws {
-        
+    func reAuthenticateUser() async throws -> UserAuthModel? {
+        .mock
     }
     
     func signIn(email: String, password: String) async throws -> UserAuthModel {
@@ -81,7 +81,7 @@ struct FirebaseAuthService: AuthenticationService {
     // MARK: - SSO with password
     func signIn(email: String, password: String) async throws -> UserAuthModel {
         let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        return result.toUserAuthModel
+        return result.toUserAuthModel(with: password)
     }
     
     func sendPasswordReset(toEmail email: String) async throws {
@@ -90,7 +90,7 @@ struct FirebaseAuthService: AuthenticationService {
     
     func createAccount(email: String, password: String) async throws -> UserAuthModel {
         let createdUser = try await Auth.auth().createUser(withEmail: email, password: password)
-        return createdUser.toUserAuthModel
+        return createdUser.toUserAuthModel(with: password)
     }
     
     // MARK: - SSO with google
@@ -125,7 +125,7 @@ struct FirebaseAuthService: AuthenticationService {
                 return result.toUserAuthModel(with: gidSignInResult.profile)
             } catch let error as NSError {
                 
-                // When user has an account try to SignIn to same account using cases errors when is already linked
+                // When user has an account try to SignIn to same account, we use cases .providerAlreadyLinked or .credentialAlreadyInUse errors when is already linked.
                 let authError = AuthErrorCode(rawValue: error.code)
                 switch authError {
                 case .providerAlreadyLinked, .credentialAlreadyInUse:
@@ -164,19 +164,71 @@ struct FirebaseAuthService: AuthenticationService {
         try await user.delete()
     }
     
-    func reAuthenticateUser() async throws {
+    /// Recover credentials from provider
+    /// - Parameters:
+    ///   - provider: Enum case to have the providers (password, google.com...)
+    /// - Returns: returns tuple of crendentials and google user with info
+    func getCredentials(for provider: ProviderID?, userAuth: User) async throws -> (crendentials: AuthCredential?, userModel: UserAuthModel?) {
+        switch provider {
+        case .password:
+            break
+        case .google:
+            guard let signInResult = try await SignInWithGoogleHelper().signIn() else {
+                throw AuthError.credentialNotFound
+            }
+            
+            let token = try await getGoogleTokens(
+                idToken: signInResult.idToken?.tokenString,
+                accessToken: signInResult.accessToken.tokenString
+            )
+            
+            return (getGoogleCredentials(idToken: token.idToken, accessToken: token.accessToken), signInResult.profile?.toUserAuthModel(with: userAuth))
+        case .apple:
+            break
+        case .facebook:
+            break
+        case .unknown:
+            break
+        case .none:
+            break
+        }
         
-        guard let signInResult = try await SignInWithGoogleHelper().signIn() else {
+        return (nil, nil)
+    }
+    
+    func reAuthenticateUser() async throws -> UserAuthModel? {
+        guard let authUser = Auth.auth().currentUser else {
+            throw AuthError.userNotFound
+        }
+        
+        var providerID: ProviderID?
+        var credentials: AuthCredential?
+        var userProfile: UserAuthModel?
+
+        // Loop in which provider is using then get credetials
+        for provider in authUser.providerData {
+            providerID = ProviderID(from: provider.providerID)
+            let result = try await getCredentials(for: providerID, userAuth: authUser)
+            credentials = result.crendentials
+            userProfile = result.userModel
+        }
+        
+        guard let validCredentials = credentials else {
+            if providerID == .password {
+                return nil
+            }
             throw AuthError.credentialNotFound
         }
-        let token = try await getGoogleTokens(idToken: signInResult.idToken?.tokenString, accessToken: signInResult.accessToken.tokenString)
-        let credentials = getGoogleCredentials(idToken: token.idToken, accessToken: token.accessToken)
         
-        try await Auth.auth().currentUser?.reauthenticate(with: credentials)
+        guard let userProfile else {
+            throw AuthError.userNotFound
+        }
+        
+        return try await authUser.reauthenticate(with: validCredentials).toUserAuthModel(withUser: userProfile)
     }
     
     func signInAnonymously() async throws -> UserAuthModel {
-        return try await Auth.auth().signInAnonymously().toUserAuthModel
+        return try await Auth.auth().signInAnonymously().toUserAuthModel()
     }
     
     func isValidEmail(email: String) -> Bool {
@@ -189,6 +241,18 @@ struct FirebaseAuthService: AuthenticationService {
         let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$"
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
         return passwordPredicate.evaluate(with: password)
+    }
+}
+
+enum ProviderID: String {
+    case password = "password"
+    case google = "google.com"
+    case apple = "apple.com"
+    case facebook = "facebook.com"
+    case unknown
+    
+    init(from rawValue: String) {
+        self = ProviderID(rawValue: rawValue) ?? .unknown
     }
 }
 

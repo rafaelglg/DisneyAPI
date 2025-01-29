@@ -81,10 +81,12 @@ struct CoreInteractor {
     
     func signOut() throws {
         try authManager.signOut()
+        updateViewState(showTabBarView: false)
     }
     
     func deleteAccount() async throws {
         try await authManager.deleteAccount()
+        updateViewState(showTabBarView: false)
     }
     
     func signInWithGoogle() async throws {

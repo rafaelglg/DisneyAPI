@@ -48,7 +48,6 @@ final class ProfileViewModel {
         Task {
             do {
                 try await interactor.signOut()
-                updateViewState(showTabBarView: false)
             } catch let error as NSError {
                 let customError = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
                 showAlert = AnyAppAlert(error: customError)
@@ -61,32 +60,27 @@ final class ProfileViewModel {
             title: "Delete Account?",
             subtitle: "This action is permanent and cannot be undone. Your data will be deleted from our server forever.",
             buttons: {
-            AnyView(Button("Delete", role: .destructive) {
-                self.onDeleteAccountConfirmed { [weak self] in
-                    await self?.updateViewStateAsync(showTabBarView: false)
-                }
-            })
+                AnyView(Button("Delete", role: .destructive, action: self.onDeleteAccountConfirmed))
         })
     }
     
-    private func onDeleteAccountConfirmed(_ goToOnboarding: @escaping () async -> Void) {
+    private func onDeleteAccountConfirmed() {
         isDeletingUser = true
         Task {
             do {
                 try await interactor.deleteAccount()
                 isDeletingUser = false
-                await goToOnboarding()
             } catch let error as NSError {
                 let customError = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)
                 isDeletingUser = false
                 
                 if error.getErrorMessage().errorType == .requiresRecentLogin {
-                    showAlert = AnyAppAlert(title: "Error", subtitle: error.getErrorMessage().errorMessage) {
-                        AnyView(Button("Sign in") {
+                    showAlert = AnyAppAlert(
+                        title: "Error",
+                        subtitle: error.getErrorMessage().errorMessage) {
                             // needs to sign in again reauthenticate
-                            self.reAuthenticateUser()
-                        })
-                    }
+                            AnyView(Button("Continue", action: self.reAuthenticateUser))
+                        }
                 } else {
                     showAlert = AnyAppAlert(error: customError)
                 }
@@ -102,15 +96,6 @@ final class ProfileViewModel {
                 print(error)
             }
         }
-    }
-    
-    func updateViewState(showTabBarView: Bool) {
-        interactor.updateViewState(showTabBarView: showTabBarView)
-    }
-    
-    private func updateViewStateAsync(showTabBarView: Bool) async {
-        try? await Task.sleep(for: .seconds(0.1))
-        interactor.updateViewState(showTabBarView: showTabBarView)
     }
     
     func updateViewState(showSignIn: Bool) {
