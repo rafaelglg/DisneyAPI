@@ -18,6 +18,8 @@ struct ProfileView: View {
                 accountSection
                 applicationSection
             }
+            .onAppear(perform: viewModel.loadUser)
+            .onChange(of: viewModel.interactor.userAuth, viewModel.loadUser)
             .showCustomAlert(alert: $viewModel.showAlert)
             .navigationTitle("Profile")
         }
@@ -61,14 +63,16 @@ struct ProfileView: View {
     
     @ViewBuilder
     var deleteSection: some View {
-        if viewModel.isDeletingUser {
-            ProgressView()
-        } else {
-            Text("Delete account")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.white.opacity(0.00001))
-                .foregroundStyle(.red)
-                .toAnyButton(action: viewModel.onDeleteAccountPressed)
+        if viewModel.user?.isAnonymous == false {
+            if viewModel.isDeletingUser {
+                ProgressView()
+            } else {
+                Text("Delete account")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.white.opacity(0.00001))
+                    .foregroundStyle(.red)
+                    .toAnyButton(action: viewModel.onDeleteAccountPressed)
+            }
         }
     }
     

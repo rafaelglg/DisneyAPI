@@ -14,7 +14,7 @@ protocol OnboardingViewInteractor {
     func updateViewState(showSignIn: Bool)
     func getAllCharacters() async throws
     func signInAnonymously() async throws -> UserAuthModel
-    var user: UserAuthModel? { get }
+    var currentUser: UserModel? { get }
 }
 
 extension CoreInteractor: OnboardingViewInteractor { }
@@ -26,8 +26,8 @@ final class OnboardingViewModelImpl {
     let interactor: OnboardingViewInteractor
     private(set) var allCharacters: [CharacterDataResponse] = []
     
-    var user: UserAuthModel? {
-        interactor.user
+    var user: UserModel? {
+        interactor.currentUser
     }
     
     init(interactor: OnboardingViewInteractor) {

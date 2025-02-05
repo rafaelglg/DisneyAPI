@@ -9,7 +9,9 @@ import Foundation
 
 @MainActor
 protocol SignUpInteractor {
-    func signUp(email: String, password: String) async throws
+    func signUp(email: String, password: String) async throws -> UserAuthModel
+    func logIn(user: UserModel) async throws
+    func updateViewState(showSignIn: Bool)
 }
 
 extension CoreInteractor: SignUpInteractor { }
@@ -25,7 +27,6 @@ final class SignUpViewModelImpl {
     var password: String = ""
     var showAlert: AnyAppAlert?
     private(set) var isloading: Bool = false
-    private(set) var dismissProcessSheet: (() -> Void)?
     
     init(interactor: SignUpInteractor) {
         self.interactor = interactor
@@ -37,14 +38,12 @@ final class SignUpViewModelImpl {
         defer { isloading = false }
         
         do {
-            try await interactor.signUp(email: email, password: password)
-            dismissProcessSheet?()
+            let user = try await interactor.signUp(email: email, password: password)
+            try await interactor.logIn(user: user.toUserModel(fullname: fullName))
+            interactor.updateViewState(showSignIn: false)
         } catch {
+            print(error)
             showAlert = AnyAppAlert(error: error)
         }
-    }
-    
-    func onChangeDismissProccessSheet(_ newValue: (() -> Void)?) {
-        dismissProcessSheet = newValue
     }
 }

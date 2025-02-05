@@ -10,9 +10,9 @@ import SwiftUI
 
 @MainActor
 protocol SignInProcessInteractor {
-    var user: UserAuthModel? { get }
-    
-    func signInWithGoogle() async throws
+    var currentUser: UserModel? { get }
+    func signInWithGoogle() async throws -> UserAuthModel
+    func logIn(user: UserModel) async throws
 }
 
 extension CoreInteractor: SignInProcessInteractor { }
@@ -21,17 +21,11 @@ extension CoreInteractor: SignInProcessInteractor { }
 @Observable
 final class SignInProcessViewModelImpl {
     private let interactor: SignInProcessInteractor
-    private(set) var user: UserAuthModel?
     
     var showSignInView: Bool = false
     
     init(interactor: SignInProcessInteractor) {
         self.interactor = interactor
-    }
-    
-    func getCurrentUser() -> UserAuthModel? {
-        user = interactor.user
-        return user
     }
     
     func showSignInView(_ newValue: Bool) {
@@ -41,7 +35,8 @@ final class SignInProcessViewModelImpl {
     func signInWithGoogle(action: DismissAction) {
         Task {
             do {
-                try await interactor.signInWithGoogle()
+                let result = try await interactor.signInWithGoogle()
+                try await interactor.logIn(user: result.toUserModel())
                 action()
             } catch {
                 print(error)
@@ -50,7 +45,7 @@ final class SignInProcessViewModelImpl {
     }
     
     func shouldDismissView(action: DismissAction) {
-        if interactor.user?.isAnonymous == false {
+        if interactor.currentUser?.isAnonymous == false {
             action()
         }
     }

@@ -10,11 +10,13 @@ struct CoreInteractor {
     private let disneyManager: DisneyManagerImpl
     private let authManager: AuthManagerImpl
     private let appState: AppStateImpl
+    private let userManager: UserManagerImpl
     
     init(container: DependencyContainer) {
         self.disneyManager = container.resolve(DisneyManagerImpl.self)!
         self.authManager = container.resolve(AuthManagerImpl.self)!
         self.appState = container.resolve(AppStateImpl.self)!
+        self.userManager = container.resolve(UserManagerImpl.self)!
     }
     
     // MARK: - Disney manager
@@ -49,21 +51,46 @@ struct CoreInteractor {
         appState.updateViewState(showSignIn: showSignIn)
     }
     
+    // MARK: - User manager
+    
+    var currentUser: UserModel? {
+        userManager.currentUser
+    }
+    
+    func getCurrentUser(userId: String) async throws -> UserModel {
+        
+        guard let user = await userManager.getCurrentUser(userId: userId) else {
+            /// This method is when a user is deleted from Database but firebase has saved the user locally so to set it to nil to create a anonymously 
+            setUserAuthToNil()
+            throw UserManagerError.noUserId
+        }
+        
+        return user
+    }
+    
+    func logIn(user: UserModel) async throws {
+        try await userManager.saveUser(user: user)
+    }
+    
     // MARK: - Authentication Service (Firebase)
     
-    var user: UserAuthModel? {
+    var userAuth: UserAuthModel? {
         authManager.user
     }
     
-    func signIn(email: String, password: String) async throws {
-        try await authManager.signIn(email: email, password: password)
+    func getUserAuthId() -> String {
+        userAuth?.id ?? ""
+    }
+    
+    func signIn(email: String, password: String) async throws -> UserAuthModel {
+        return try await authManager.signIn(email: email, password: password)
     }
     
     func signInAnonymously() async throws -> UserAuthModel {
         try await authManager.signInAnonymously()
     }
     
-    func signUp(email: String, password: String) async throws {
+    func signUp(email: String, password: String) async throws -> UserAuthModel {
         try await authManager.signUp(email: email, password: password)
     }
     
@@ -75,21 +102,11 @@ struct CoreInteractor {
         try await authManager.sendPasswordReset(email: email)
     }
     
-    func getCurrentUser() throws -> UserAuthModel? {
-        try authManager.getCurrentUser()
+    func getUserAuth() -> UserAuthModel? {
+        authManager.getUserAuth()
     }
     
-    func signOut() throws {
-        try authManager.signOut()
-        updateViewState(showTabBarView: false)
-    }
-    
-    func deleteAccount() async throws {
-        try await authManager.deleteAccount()
-        updateViewState(showTabBarView: false)
-    }
-    
-    func signInWithGoogle() async throws {
+    func signInWithGoogle() async throws -> UserAuthModel {
         try await authManager.signInWithGoogle()
     }
     
@@ -99,5 +116,24 @@ struct CoreInteractor {
     
     func isValidPassword(password: String) -> Bool {
         authManager.isValidPassword(password: password)
+    }
+    
+    func setUserAuthToNil() {
+        authManager.setUserToNil()
+    }
+    
+    // MARK: - SHARED
+    func deleteAccount() async throws {
+        let id = getUserAuthId()
+        try await authManager.deleteAccount()
+        try await userManager.deleteUser(userId: id)
+        setUserAuthToNil()
+        updateViewState(showTabBarView: false)
+    }
+    
+    func signOut() throws {
+        try authManager.signOut()
+        userManager.signOut()
+        updateViewState(showTabBarView: false)
     }
 }

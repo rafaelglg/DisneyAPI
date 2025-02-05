@@ -8,7 +8,7 @@
 @MainActor
 protocol TabbarViewInteractor {
     var shouldPresentSignIn: Bool { get set }
-    var user: UserAuthModel? { get }
+    var currentUser: UserModel? { get }
 }
 
 extension CoreInteractor: TabbarViewInteractor { }
@@ -19,7 +19,6 @@ import SwiftUI
 @Observable
 final class TabbarViewViewModelImpl {
     private var interactor: TabbarViewInteractor
-    var user: UserAuthModel?
         
     var shouldPresentSignIn: Bool {
         get {
@@ -31,9 +30,5 @@ final class TabbarViewViewModelImpl {
     
     init(interactor: TabbarViewInteractor) {
         self.interactor = interactor
-    }
-    
-    func getCurrentUser() {
-        user = interactor.user
     }
 }

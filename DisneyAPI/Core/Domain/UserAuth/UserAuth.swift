@@ -7,10 +7,10 @@
 
 import Foundation
 
-struct UserAuthModel: Codable, Identifiable, Sendable {
+struct UserAuthModel: Codable, Identifiable, Sendable, Equatable {
     
     let id: String
-    let fullName: String
+    let fullName: String?
     let email: String
     let password: String?
     let dateCreated: Date?
@@ -20,7 +20,7 @@ struct UserAuthModel: Codable, Identifiable, Sendable {
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()
-        if let personNameComponent = formatter.personNameComponents(from: fullName) {
+        if let personNameComponent = formatter.personNameComponents(from: fullName ?? "") {
             formatter.style = .abbreviated
             return formatter.string(from: personNameComponent)
         }

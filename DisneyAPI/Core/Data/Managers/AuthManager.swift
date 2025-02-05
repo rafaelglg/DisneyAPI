@@ -16,20 +16,25 @@ final class AuthManagerImpl {
     
     init(repository: AuthenticationService) {
         self.repository = repository
-        self.user = repository.getCurrentUser()
+        self.user = repository.getUserAuth()
     }
     
-    func signIn(email: String, password: String) async throws {
+    func signIn(email: String, password: String) async throws -> UserAuthModel {
         let result = try await repository.signIn(email: email, password: password)
         self.user = result
+        return result
     }
     
-    func signUp(email: String, password: String) async throws {
-        user = try await repository.createAccount(email: email, password: password)
+    func signUp(email: String, password: String) async throws -> UserAuthModel {
+        let user = try await repository.createAccount(email: email, password: password)
+        self.user = user
+        return user
     }
     
-    func signInWithGoogle() async throws {
-        user = try await repository.signInWithGoogle()
+    func signInWithGoogle() async throws -> UserAuthModel {
+        let result = try await repository.signInWithGoogle()
+        user = result
+        return result
     }
     
     func reAuthenticateUser() async throws {
@@ -46,18 +51,17 @@ final class AuthManagerImpl {
         try await repository.sendPasswordReset(toEmail: email)
     }
     
-    func getCurrentUser() throws -> UserAuthModel? {
-        return repository.getCurrentUser()
+    func getUserAuth() -> UserAuthModel? {
+        return repository.getUserAuth()
     }
     
     func signOut() throws {
         try repository.signOut()
-        user = nil
+        setUserToNil()
     }
     
     func deleteAccount() async throws {
         try await repository.deleteAccount()
-        user = nil
     }
     
     func isValidEmail(email: String) -> Bool {
@@ -66,5 +70,9 @@ final class AuthManagerImpl {
     
     func isValidPassword(password: String) -> Bool {
         repository.isValidPassword(password: password)
+    }
+    
+    func setUserToNil() {
+        user = nil
     }
 }

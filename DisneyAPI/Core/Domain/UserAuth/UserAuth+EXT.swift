@@ -33,7 +33,7 @@ extension UserAuthModel {
 }
 
 extension AuthDataResult {
-    func toUserAuthModel(with password: String = "") -> UserAuthModel {
+    func toUserAuthModel(withPassword password: String = "") -> UserAuthModel {
         let user = UserAuthModel(user: self.user, password: password)
         return user
     }
@@ -54,5 +54,20 @@ extension AuthDataResult {
 extension GIDProfileData {
     func toUserAuthModel(with user: User) -> UserAuthModel {
         return UserAuthModel(user: user, googleProfile: self)
+    }
+}
+
+extension UserAuthModel {
+    
+    func toUserModel(fullname: String = "") -> UserModel {
+        return UserModel(
+            id: self.id,
+            fullName: self.fullName ?? fullname,
+            email: self.email,
+            dateCreated: self.dateCreated,
+            profilePicture: self.profilePicture,
+            isAnonymous: self.isAnonymous,
+            lastSignInDate: self.lastSignInDate
+        )
     }
 }

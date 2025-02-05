@@ -11,7 +11,8 @@ import Foundation
 protocol SignViewModelInteractor {
     var allCharacters: [CharacterDataResponse] { get }
     
-    func signIn(email: String, password: String) async throws
+    func signIn(email: String, password: String) async throws -> UserAuthModel
+    func getCurrentUser(userId: String) async throws -> UserModel
     func isValidEmail(email: String) -> Bool
     func isValidPassword(password: String) -> Bool
 }
@@ -87,7 +88,8 @@ final class SignInViewModelImpl {
             defer { isLoading = false }
             
             do {
-                try await interactor.signIn(email: emailText, password: passwordText)
+                let result = try await interactor.signIn(email: emailText, password: passwordText)
+                let user = try await interactor.getCurrentUser(userId: result.id)
                 dismissProcessSheet?()
             } catch let error as NSError {
                 let errorMessage = CustomErrorMessage(errorDescription: error.getErrorMessage().errorMessage)

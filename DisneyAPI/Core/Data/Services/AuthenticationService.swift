@@ -9,7 +9,7 @@ import Foundation
 import FirebaseAuth
 
 protocol AuthenticationService: Sendable {
-    func getCurrentUser() -> UserAuthModel?
+    func getUserAuth() -> UserAuthModel?
     func createAccount(email: String, password: String) async throws -> UserAuthModel
     func signIn(email: String, password: String) async throws -> UserAuthModel
     func signInAnonymously() async throws -> UserAuthModel
@@ -31,7 +31,7 @@ struct MockAuthService: AuthenticationService {
         self.selectMockUser = selectMockUser
     }
     
-    func getCurrentUser() -> UserAuthModel? {
+    func getUserAuth() -> UserAuthModel? {
         return .mocks[selectMockUser]
     }
     
@@ -80,8 +80,8 @@ struct FirebaseAuthService: AuthenticationService {
     
     // MARK: - SSO with password
     func signIn(email: String, password: String) async throws -> UserAuthModel {
-        let result = try await Auth.auth().signIn(withEmail: email, password: password)
-        return result.toUserAuthModel(with: password)
+        let signInResult = try await Auth.auth().signIn(withEmail: email, password: password)
+        return signInResult.toUserAuthModel(withPassword: password)
     }
     
     func sendPasswordReset(toEmail email: String) async throws {
@@ -89,8 +89,21 @@ struct FirebaseAuthService: AuthenticationService {
     }
     
     func createAccount(email: String, password: String) async throws -> UserAuthModel {
+        let credentials = getEmailCredentials(email: email, password: password)
+        
+        // Link anonymous account to a email userAccount
+        if let user = Auth.auth().currentUser, user.isAnonymous {
+           let result = try await user.link(with: credentials)
+            return result.toUserAuthModel(withPassword: password)
+        }
+        
         let createdUser = try await Auth.auth().createUser(withEmail: email, password: password)
-        return createdUser.toUserAuthModel(with: password)
+        return createdUser.toUserAuthModel(withPassword: password)
+    }
+    
+    func getEmailCredentials(email: String, password: String) -> AuthCredential {
+        let credentials = EmailAuthProvider.credential(withEmail: email, password: password)
+        return credentials
     }
     
     // MARK: - SSO with google
@@ -145,7 +158,7 @@ struct FirebaseAuthService: AuthenticationService {
     }
     
     // MARK: Shared methods
-    func getCurrentUser() -> UserAuthModel? {
+    func getUserAuth() -> UserAuthModel? {
         if let user = Auth.auth().currentUser {
             return UserAuthModel(user: user)
         }

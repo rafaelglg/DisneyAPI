@@ -10,8 +10,6 @@ import SwiftUI
 struct SignUpView: View {
     
     @State var viewModel: SignUpViewModelImpl
-    @Environment(\.dismiss) private var dismiss
-    var dismissProcessSheet: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 4) {
@@ -64,7 +62,6 @@ struct SignUpView: View {
     }
     
     func signUpSuccess() {
-        viewModel.onChangeDismissProccessSheet(dismissProcessSheet)
         Task {
             await viewModel.signUp()
         }

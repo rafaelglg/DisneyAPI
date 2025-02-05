@@ -13,11 +13,13 @@ struct Dependencies {
     let characterManager: DisneyManagerImpl
     let authManager: AuthManagerImpl
     let appState: AppStateImpl
+    let userManager: UserManagerImpl
     
     init() {
         self.characterManager = DisneyManagerImpl(repository: DisneyServiceImpl())
         // self.disneyManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
         self.authManager = AuthManagerImpl(repository: FirebaseAuthService())
+        self.userManager = UserManagerImpl(repository: FirebaseUserService())
        // self.authManager = AuthManagerImpl(repository: MockAuthService())
         self.appState = AppStateImpl()
         
@@ -25,6 +27,7 @@ struct Dependencies {
         container.register(DisneyManagerImpl.self, service: characterManager)
         container.register(AuthManagerImpl.self, service: authManager)
         container.register(AppStateImpl.self, service: appState)
+        container.register(UserManagerImpl.self, service: userManager)
         self.container = container
     }
 }
@@ -45,16 +48,19 @@ struct DevPreview {
         container.register(DisneyManagerImpl.self, service: characterManager)
         container.register(AuthManagerImpl.self, service: authManager)
         container.register(AppStateImpl.self, service: appState)
+        container.register(UserManagerImpl.self, service: userManager)
         return container
     }
     
     let characterManager: DisneyManagerImpl
     let authManager: AuthManagerImpl
     let appState: AppStateImpl
+    let userManager: UserManagerImpl
     
     init() {
         self.characterManager = DisneyManagerImpl(repository: DisneyServiceMock(characters: .mock))
         self.authManager = AuthManagerImpl(repository: MockAuthService())
         self.appState = AppStateImpl()
+        self.userManager = UserManagerImpl(repository: MockUserService())
     }
 }

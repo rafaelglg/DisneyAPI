@@ -124,7 +124,7 @@ struct SignInView: View {
                         interactor: CoreInteractor(
                             container: container
                         )
-                    ), dismissProcessSheet: dismissProcessSheet
+                    )
                 )
             }
     }

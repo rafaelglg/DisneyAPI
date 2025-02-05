@@ -7,7 +7,6 @@
 import GoogleSignIn
 import GoogleSignInSwift
 import FirebaseAuth
-import Foundation
 
 @MainActor
 struct SignInWithGoogleHelper {

@@ -11,14 +11,15 @@ import SwiftUI
 @MainActor
 protocol ProfileViewModelInteractor {
     
-    var user: UserAuthModel? { get }
+    var currentUser: UserModel? { get }
+    var userAuth: UserAuthModel? { get }
     
     func updateViewState(showTabBarView: Bool)
     func updateViewState(showSignIn: Bool)
     func deleteAccount() async throws
     func signOut() async throws
     func reAuthenticateUser() async throws
-    func getCurrentUser() throws -> UserAuthModel?
+    func getCurrentUser(userId: String) async throws -> UserModel
 }
 
 extension CoreInteractor: ProfileViewModelInteractor { }
@@ -26,22 +27,30 @@ extension CoreInteractor: ProfileViewModelInteractor { }
 @MainActor
 @Observable
 final class ProfileViewModel {
-    private let interactor: ProfileViewModelInteractor
+    let interactor: ProfileViewModelInteractor
     
     private(set) var isDeletingUser: Bool = false
-    
+    private(set) var user: UserModel?
     var showAlert: AnyAppAlert?
     
-    var user: UserAuthModel? {
-        return interactor.user
-    }
-    
     var isAnonymous: Bool {
-        return interactor.user?.isAnonymous ?? true
+        return interactor.currentUser?.isAnonymous ?? true
     }
     
     init(interactor: ProfileViewModelInteractor) {
         self.interactor = interactor
+    }
+    
+    func loadUser() {
+        if let userId = interactor.userAuth?.id {
+            Task {
+                do {
+                    self.user = try await interactor.getCurrentUser(userId: userId)
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
     
     func onSignOut() {
