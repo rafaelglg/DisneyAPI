@@ -8,6 +8,7 @@ import SwiftUI
 
 struct GoogleSignInButtonView: View {
     
+    var isLoading: Bool = false
     @MainActor let action: () -> Void
     var body: some View {
         VStack {
@@ -15,12 +16,16 @@ struct GoogleSignInButtonView: View {
                 
                 Button(action: action) {
                     HStack {
-                        Image(.googleIcon)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 25, height: 25)
-                        Text("Sign in with Google")
-                            .foregroundStyle(.black)
+                        if isLoading {
+                            ProgressView()
+                        } else {
+                            Image(.googleIcon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 25, height: 25)
+                            Text("Sign in with Google")
+                                .foregroundStyle(.black)
+                        }
                     }
                     .frame(height: 50)
                     .frame(maxWidth: .infinity)
@@ -32,7 +37,12 @@ struct GoogleSignInButtonView: View {
     }
 }
 
-#Preview {
+#Preview("Button normal") {
     GoogleSignInButtonView {}
+    .padding()
+}
+
+#Preview("Button is loading") {
+    GoogleSignInButtonView(isLoading: true) {}
     .padding()
 }

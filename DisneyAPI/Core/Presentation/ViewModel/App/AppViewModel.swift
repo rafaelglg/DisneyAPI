@@ -45,9 +45,8 @@ final class AppViewModel {
             Task {
                 do {
                     let dbUser = try await interactor.getCurrentUser(userId: user.id)
-                    print(dbUser)
-                    print("tiene usuario")
                     try await interactor.logIn(user: dbUser)
+                    print("tiene usuario")
                 } catch {
                     print(error)
                     checkUserStatus()
@@ -59,7 +58,6 @@ final class AppViewModel {
                 do {
                     let result = try await interactor.signInAnonymously()
                     try await interactor.logIn(user: result.toUserModel())
-                    print("Sign in anonymous success: \(result.id)")
                 } catch {
                     print("error sign in anonymous")
                 }

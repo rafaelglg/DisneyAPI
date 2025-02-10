@@ -5,7 +5,7 @@
 //  Created by Rafael Loggiodice on 16/1/25.
 //
 
-import Foundation
+@preconcurrency import Foundation
 import FirebaseAuth
 
 protocol AuthenticationService: Sendable {
@@ -21,6 +21,7 @@ protocol AuthenticationService: Sendable {
     
     func isValidEmail(email: String) -> Bool
     func isValidPassword(password: String) -> Bool
+    func addUserAthenticatedListener() -> AsyncStream<UserAuthModel?>
 }
 
 struct MockAuthService: AuthenticationService {
@@ -33,6 +34,12 @@ struct MockAuthService: AuthenticationService {
     
     func getUserAuth() -> UserAuthModel? {
         return .mocks[selectMockUser]
+    }
+    
+    func addUserAthenticatedListener() -> AsyncStream<UserAuthModel?> {
+        AsyncStream { continuation in
+            continuation.yield(.mocks[selectMockUser])
+        }
     }
     
     func signInWithGoogle() async throws -> UserAuthModel {
@@ -86,6 +93,23 @@ struct FirebaseAuthService: AuthenticationService {
     
     func sendPasswordReset(toEmail email: String) async throws {
         try await Auth.auth().sendPasswordReset(withEmail: email)
+    }
+    
+    func addUserAthenticatedListener() -> AsyncStream<UserAuthModel?> {
+        AsyncStream { continuation in
+            let listener = Auth.auth().addStateDidChangeListener { _, userAuth in
+                if let userAuth {
+                    let user = UserAuthModel(user: userAuth)
+                    continuation.yield(user)
+                } else {
+                    continuation.yield(nil)
+                }
+            }
+            
+            continuation.onTermination = { @Sendable _ in
+                Auth.auth().removeStateDidChangeListener(listener)
+            }
+        }
     }
     
     func createAccount(email: String, password: String) async throws -> UserAuthModel {

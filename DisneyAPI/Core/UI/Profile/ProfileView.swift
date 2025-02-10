@@ -19,7 +19,7 @@ struct ProfileView: View {
                 applicationSection
             }
             .onAppear(perform: viewModel.loadUser)
-            .onChange(of: viewModel.interactor.userAuth, viewModel.loadUser)
+            .onChange(of: viewModel.interactor.currentUser, viewModel.loadUser)
             .showCustomAlert(alert: $viewModel.showAlert)
             .navigationTitle("Profile")
         }

@@ -11,6 +11,7 @@ import Foundation
 final class UserManagerImpl {
     private let repository: RemoteUserService
     private(set) var currentUser: UserModel?
+    private var taskListener: Task<Void, Error>?
     
     init(repository: RemoteUserService) {
         self.repository = repository
@@ -31,6 +32,22 @@ final class UserManagerImpl {
     
     func saveUser(user: UserModel) async throws {
         try await repository.saveUser(user: user)
+        addUserListener(userId: user.id)
+    }
+    
+    func addUserListener(userId: String) {
+        taskListener?.cancel()
+        taskListener = Task {
+            do {
+                for try await value in repository.addUserListener(userId: userId) {
+                    print("user listener success: \(String(describing: value.id))")
+                    print("user: \(String(describing: value))")
+                    self.currentUser = value
+                }
+            } catch {
+                print("error en el addUserListener: \(error), \(#file)")
+            }
+        }
     }
     
     func signOut() {

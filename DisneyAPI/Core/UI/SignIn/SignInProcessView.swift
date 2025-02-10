@@ -66,10 +66,10 @@ struct SignInProcessView: View {
     }
     
     var googleButton: some View {
-        GoogleSignInButtonView {
+        GoogleSignInButtonView(isLoading: viewModel.isLoadingGoogleSignIn) {
             viewModel.signInWithGoogle(action: dismiss)
         }
-            .padding(.horizontal, 30)
+        .padding(.horizontal, 30)
     }
     
     var signInButton: some View {
@@ -116,7 +116,7 @@ struct SignInProcessView: View {
     ZStack {
         if isSheetPresented {
             Color.black
-                .opacity(0.4) // Nivel de oscurecimiento
+                .opacity(0.4) // level of darkness
                 .ignoresSafeArea()
                 .transition(.opacity)
         }

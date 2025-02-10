@@ -23,6 +23,7 @@ final class SignInProcessViewModelImpl {
     private let interactor: SignInProcessInteractor
     
     var showSignInView: Bool = false
+    var isLoadingGoogleSignIn: Bool = false
     
     init(interactor: SignInProcessInteractor) {
         self.interactor = interactor
@@ -33,7 +34,9 @@ final class SignInProcessViewModelImpl {
     }
     
     func signInWithGoogle(action: DismissAction) {
+        isLoadingGoogleSignIn = true
         Task {
+            defer { isLoadingGoogleSignIn = false }
             do {
                 let result = try await interactor.signInWithGoogle()
                 try await interactor.logIn(user: result.toUserModel())
