@@ -7,7 +7,9 @@
 
 import Foundation
 
-struct UserAuthModel: Codable, Identifiable, Sendable, Equatable {
+typealias UserAuth = Codable & Identifiable & Sendable & Equatable
+
+struct UserAuthModel: UserAuth {
     
     let id: String
     let fullName: String?

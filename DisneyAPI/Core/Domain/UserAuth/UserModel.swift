@@ -63,6 +63,6 @@ struct UserModel: Codable, Identifiable, Equatable {
         case dateCreated = "date_created"
         case profilePicture = "profile_picture"
         case isAnonymous = "is_anonymous"
-        case lastSignInDate = "last_signin_date"
+        case lastSignInDate = "last_sign_in_date"
     }
 }
